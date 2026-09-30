@@ -1,0 +1,63 @@
+setting_key,value,value_type,category,description
+tier_high_min,10,integer,Tiering,Tier score at or above this is High (R1)
+tier_medium_min,7,integer,Tiering,Tier score at or above this (and below High) is Medium (R1)
+reval_lead_days,60,integer,Revalidation,Days before due date a Monitoring model shows in Revalidation (R3)
+due_soon_days,30,integer,Revalidation,Days to due at or below which revalidation is Due Soon (R4)
+revalidation_frequencies,Monthly=1; Quarterly=3; Semi-annual=6; Annual=12; Biennial=24,list,Revalidation,Allowed revalidation frequencies as Name=months (R2)
+validation_sla_days_high,45,integer,Validation,Validation SLA in days for High-tier models (R9)
+validation_sla_days_medium,60,integer,Validation,Validation SLA in days for Medium-tier models (R9)
+validation_sla_days_low,90,integer,Validation,Validation SLA in days for Low-tier models (R9)
+weight_documentation,25,percent,Governance score,Documentation component weight (R8)
+weight_validation_currency,25,percent,Governance score,Validation currency component weight (R8)
+weight_issue_remediation,20,percent,Governance score,Issue remediation component weight (R8)
+weight_mrc_compliance,15,percent,Governance score,MRC compliance component weight (R8)
+weight_monitoring,15,percent,Governance score,Monitoring component weight (R8)
+required_docs_development,Terms of Reference,list,Documents,Required document types in Development (BRD §40)
+required_docs_validation,Terms of Reference; Model Development Document,list,Documents,Required document types in Validation (BRD §40)
+required_docs_production,Terms of Reference; Model Development Document; Validation Report; Model Approval/MRC Paper; Monitoring Plan,list,Documents,Required document types from Implementation onwards (BRD §40)
+mdd_required_sections,Purpose and use; Data; Methodology; Assumptions; Limitations; Testing and performance; Implementation; Monitoring plan,list,Documents,Sections an MDD must contain
+document_types,Terms of Reference; Model Development Document; Validation Report; Monitoring Plan; Monitoring Report; Backtesting Report; Model Approval/MRC Paper; Model Change Document; Data Quality Report; Regulatory/Audit Evidence; Model Inventory Evidence; Other,list,Documents,Allowed document types (BRD §28)
+dq_default_pass_pct,98,percent,Data quality,DQ pass threshold when a rule gives none (R7)
+dq_default_warn_pct,95,percent,Data quality,DQ warn threshold when a rule gives none (R7)
+monitoring_frequencies,Monthly; Quarterly; Semi-annual; Annual,list,Monitoring,Allowed monitoring frequencies
+repeated_breach_consecutive_periods,2,integer,Monitoring,Same KPI failing this many consecutive periods is a repeated breach
+repeated_breach_window_fails,3,integer,Monitoring,Failures within the window that count as repeated
+repeated_breach_window_periods,4,integer,Monitoring,Window length (periods) for repeated-breach detection
+max_document_size_mb,10,integer,Files,Maximum size of an individual uploaded document
+max_zip_size_mb,200,integer,Files,Maximum size of an uploaded ZIP package
+max_zip_file_count,500,integer,Files,Maximum number of files in a ZIP package
+lifecycle_phases,Initiation; Development; Validation; Implementation; Monitoring; Reg/Audit; Retirement,list,Lifecycle,Lifecycle phases in order (BRD §8)
+mrc_required_from_phase,Implementation,text,Lifecycle,Phase from which an MRC decision is required (R8 MRC compliance)
+validator_required_from_phase,Validation,text,Lifecycle,Phase from which a validator must be assigned
+validation_data_required_from_phase,Monitoring,text,Lifecycle,"Phase from which go-live date, revalidation frequency and last validation date are required"
+model_types,Credit Risk; Provisioning; Balance Sheet; Forecasting; CCAR/Stress Testing,list,Inventory,Allowed model types
+validation_types,Initial; Periodic; Targeted; Change,list,Validation,Allowed validation types (BRD §9)
+validation_outcomes,Approved; Conditional; Rejected; In Progress,list,Validation,Allowed validation outcomes (BRD §9)
+validation_currency_outcomes,Approved; Conditional,list,Validation,Completed outcomes that reset the last validation date
+finding_severities,Critical; Medium; Low,list,Findings,Finding severities (BRD §11)
+finding_categories,Data; Methodology; Documentation; Implementation; Performance; Monitoring,list,Findings,Finding categories
+finding_statuses,Open; In Progress; Deferred; Closed; Accepted Risk; Rejected,list,Findings,Finding statuses (BRD §11)
+finding_open_statuses,Open; In Progress; Deferred,list,Findings,Statuses counted as open for remediation and ageing
+finding_sources,Manual; Import; Extraction; Monitoring,list,Findings,Finding sources
+approval_forums,MRC; Model Risk Officer; Validation Committee,list,Approvals,Approval forums
+approval_decision_types,ToR; Initial approval; Validation complete; Pre-implementation; Annual review; Periodic review; Model change; Retirement,list,Approvals,Approval decision types
+approval_decisions,Approved; Conditional; Rejected,list,Approvals,Approval decisions (BRD §12)
+score_validation_overdue_penalty_per_day,2,decimal,Governance score,Validation currency points lost per day overdue (R8)
+score_penalty_open_critical,25,decimal,Governance score,Issue remediation points lost per open Critical finding (R8)
+score_penalty_open_medium,10,decimal,Governance score,Issue remediation points lost per open Medium finding (R8)
+score_penalty_open_low,3,decimal,Governance score,Issue remediation points lost per open Low finding (R8)
+score_penalty_past_due,10,decimal,Governance score,Issue remediation points lost per finding past due (R8)
+score_mrc_conditional,70,decimal,Governance score,MRC compliance score for a Conditional decision with open conditions (R8)
+import_max_file_mb,20,integer,Files,Maximum size of one structured import file (Excel/CSV)
+import_max_files,50,integer,Files,Maximum number of files in one import batch
+import_max_rows,50000,integer,Files,Maximum data rows in one import file
+document_type_keywords,Terms of Reference=terms of reference|tor; Model Development Document=model development|mdd|development document; Validation Report=validation report|validation|vr; Monitoring Plan=monitoring plan|mon plan; Backtesting Report=backtesting|backtest; Monitoring Report=monitoring report|monitoring|kpi; Model Approval/MRC Paper=mrc|approval|committee paper; Model Change Document=model change|change request; Data Quality Report=data quality|dq report|dq; Regulatory/Audit Evidence=regulatory|audit|supervisory; Model Inventory Evidence=inventory,list,Documents,"Classification keywords per document type, checked in this order against file then folder names (BRD §34)"
+allowed_document_extensions,pdf; docx; xlsx; pptx; csv,list,Files,File types accepted as documents or evidence
+document_confidentiality_levels,Internal; Confidential; Restricted,list,Documents,Confidentiality classifications
+document_default_confidentiality,Confidential,text,Documents,Confidentiality applied when none is given
+document_retention_years,7,integer,Documents,Retention period from the effective date (BRD §68)
+document_auto_confirm_confidence,0.8,decimal,Documents,Minimum classification confidence for a system (seed) load to store without review
+max_zip_uncompressed_mb,500,integer,Files,Maximum total size of files inside a ZIP package
+max_zip_compression_ratio,100,integer,Files,Reject ZIP members compressed more than this ratio (zip-bomb guard)
+production_phases,Monitoring; Reg/Audit,list,Dashboard,Lifecycle phases counted as 'in production' on the Command Center
+insights_display_limit,10,integer,Dashboard,Number of governance insights shown on the Command Center (all are available on request)

@@ -1,0 +1,80 @@
+model_id,model_name,model_type,model_subtype,purpose,business_line,owner_id,developer_id,validator_id,lifecycle_phase,version,go_live_date,revalidation_frequency,last_validation_date,q_materiality,q_complexity,q_reliance,q_regulatory_use,successor_model_id,legacy_sod_exception
+M-0012,Wholesale PD Model,Credit Risk,PD,"Estimates 12-month probability of default for wholesale commercial exposures from financial statements, market signals and behaviour.",Commercial Banking,U-101,U-102,U-014,Monitoring,v3.1,2024-08-09,Annual,2026-04-16,3,2,3,3,,N
+M-0015,Retail LGD Model,Credit Risk,LGD,"Loss given default for retail mortgage and unsecured portfolios, using collateral values and recovery timelines.",Retail Banking,U-103,U-104,U-105,Monitoring,v2.4,2024-07-06,Annual,2025-09-06,3,3,3,3,,N
+M-0023,EAD Facility Model,Credit Risk,EAD,Exposure at default for revolving facilities and committed lines through credit conversion factors.,Commercial Banking,U-106,U-107,U-108,Monitoring,v1.3,2024-11-07,Annual,2026-04-06,3,2,2,1,,N
+M-0031,CECL Lifetime ECL,Provisioning,CECL,"Lifetime expected credit loss across commercial, retail and securities portfolios with weighted macroeconomic scenarios.",Enterprise Risk,U-109,U-110,U-111,Reg/Audit,v4.0,2024-01-30,Annual,2026-01-12,3,3,3,3,,N
+M-0038,IFRS 9 Stage Allocation,Provisioning,IFRS 9,Significant-increase-in-credit-risk staging and forward-looking ECL for the international book.,International,U-112,U-113,U-114,Reg/Audit,v2.2,2023-07-27,Annual,2025-12-02,3,3,3,3,,N
+M-0042,ALM Interest Rate Risk,Balance Sheet,ALM/IRR,Net interest income sensitivity and economic value of equity under parallel and non-parallel rate shocks.,Treasury,U-115,U-116,U-117,Monitoring,v3.0,2024-12-30,Annual,2025-08-09,3,2,3,3,,N
+M-0048,Liquidity Stress Model,Balance Sheet,Liquidity,LCR and NSFR projections under idiosyncratic and market-wide stress.,Treasury,U-118,U-119,U-120,Monitoring,v2.1,2024-02-27,Semi-annual,2026-04-17,3,3,2,3,,N
+M-0055,Revenue Forecasting Model,Forecasting,Revenue,Multi-factor revenue projection for financial planning cycles.,Finance,U-121,U-122,U-123,Monitoring,v2.0,2024-08-31,Annual,2025-12-27,3,2,2,1,,N
+M-0061,Expense Projection Model,Forecasting,Expense,"Bottom-up expense forecast from cost-centre projections, inflation and headcount plans.",Finance,U-124,U-125,U-126,Monitoring,v1.5,2023-10-09,Biennial,2025-12-15,1,1,2,1,,N
+M-0071,CCAR PPNR Model,CCAR/Stress Testing,PPNR,"Pre-provision net revenue under baseline, adverse and severely adverse supervisory scenarios.",Enterprise Risk,U-127,U-128,U-129,Implementation,v5.0,,,,3,2,3,3,,N
+M-0076,CCAR Loss Forecasting,CCAR/Stress Testing,Loss,Net charge-offs and provision expense under stress scenarios across major portfolios.,Enterprise Risk,U-130,U-131,U-132,Validation,v4.2,,,,3,3,2,3,,N
+M-0078,CCAR Capital Adequacy,CCAR/Stress Testing,Capital,"CET1 ratio projection combining RWA dynamics, loss absorption and planned capital actions.",Enterprise Risk,U-101,U-102,U-101,Validation,v3.5,,,,3,3,2,3,,Y
+M-0082,Market Risk VaR,Credit Risk,VaR,Historical simulation VaR with expected shortfall for the trading book.,Capital Markets,U-133,U-134,,Development,v1.0-draft,,,,3,2,3,3,,N
+M-0085,Behavioral Scorecard v2,Credit Risk,Scorecard,Behavioural score for existing retail customers from transaction patterns and bureau updates.,Retail Banking,U-121,U-135,,Development,v2.0-draft,,,,2,2,2,2,,N
+M-0089,Climate Risk Transition,Forecasting,Climate,Transition-risk exposure to carbon-intensive sectors under NGFS scenarios.,Enterprise Risk,U-112,U-122,,Initiation,v0.1,,,,2,2,2,2,,N
+M-0091,Deposit Pricing Model,Balance Sheet,Deposit,Non-maturity deposit pricing with rate sensitivity and balance elasticity.,Treasury,U-118,U-119,,Initiation,v0.1,,,,2,1,1,1,,N
+M-0003,Legacy PD Scorecard v1,Credit Risk,PD,"Original retail PD scorecard, replaced by M-0012 after a parallel run.",Retail Banking,U-101,U-102,U-014,Retirement,v1.0,,,,2,1,1,1,M-0012,N
+M-0005,Basel II IRB Floor Model,Credit Risk,Rating,"IRB output floor calculation, retired after the Basel III.1 implementation.",Enterprise Risk,U-106,U-107,U-108,Retirement,v2.0,,,,1,1,2,1,,N
+M-0008,Legacy ALCO NII Model,Balance Sheet,ALM/IRR,"First-generation NII sensitivity model, replaced by M-0042.",Treasury,U-115,U-116,U-117,Retirement,v1.5,,,,1,2,1,1,M-0042,N
+M-0101,International Scorecard Model,Credit Risk,Scorecard,Scorecard model for the international portfolio.,Commercial Banking,U-106,U-122,,Initiation,v3.7,,,,3,2,2,1,,N
+M-0102,Treasury CECL Model,Provisioning,CECL,CECL model for the treasury portfolio.,International,U-124,U-116,,Initiation,v3.2,,,,3,3,3,3,,N
+M-0103,CRE Liquidity Model,Balance Sheet,Liquidity,Liquidity model for the cre portfolio.,Treasury,U-112,U-113,,Development,v3.0,,,,2,1,1,1,,N
+M-0104,Small Business Balance Model,Forecasting,Balance,Balance model for the small portfolio.,Finance,U-109,U-122,,Development,v2.5,,,,2,1,1,1,,N
+M-0105,Treasury Capital Model,CCAR/Stress Testing,Capital,Capital model for the treasury portfolio.,Enterprise Risk,U-115,U-113,,Development,v3.4,,,,3,2,2,1,,N
+M-0106,Small Business Collections Model,Credit Risk,Collections,Collections model for the small portfolio.,Retail Banking,U-121,U-110,,Development,v4.0,,,,1,2,1,1,,N
+M-0107,Commercial Q-factor Model,Provisioning,Q-factor,Q-factor model for the commercial portfolio.,International,U-112,U-122,U-105,Validation,v1.1,,,,3,2,3,3,,N
+M-0108,Small Business Prepayment Model,Balance Sheet,Prepayment,Prepayment model for the small portfolio.,Treasury,U-109,U-113,U-132,Validation,v3.5,,,,2,3,2,1,,N
+M-0109,CRE Revenue Model,Forecasting,Revenue,Revenue model for the cre portfolio.,Finance,U-124,U-125,U-132,Validation,v3.8,,,,3,2,2,1,,N
+M-0110,Consumer Scenario Model,CCAR/Stress Testing,Scenario,Scenario model for the consumer portfolio.,Enterprise Risk,U-109,U-125,U-132,Validation,v4.7,,,,3,3,3,3,,N
+M-0111,Consumer LGD Model,Credit Risk,LGD,LGD model for the consumer portfolio.,Commercial Banking,U-115,U-107,U-132,Implementation,v3.0,,,,2,2,2,2,,N
+M-0112,Commercial Q-factor Model,Provisioning,Q-factor,Q-factor model for the commercial portfolio.,Enterprise Risk,U-121,U-125,U-108,Implementation,v3.2,,,,1,1,2,1,,N
+M-0113,International Prepayment Model,Balance Sheet,Prepayment,Prepayment model for the international portfolio.,Treasury,U-124,U-113,U-117,Implementation,v2.1,,,,2,3,2,1,,N
+M-0114,Mortgage Revenue Model,Forecasting,Revenue,Revenue model for the mortgage portfolio.,Finance,U-112,U-107,U-123,Monitoring,v4.0,2024-10-14,Annual,2026-05-20,2,3,2,1,,N
+M-0115,Consumer Capital Model,CCAR/Stress Testing,Capital,Capital model for the consumer portfolio.,Enterprise Risk,U-124,U-116,U-120,Monitoring,v4.0,2023-08-07,Biennial,2025-02-23,3,3,3,3,,N
+M-0116,Mortgage Collections Model,Credit Risk,Collections,Collections model for the mortgage portfolio.,Commercial Banking,U-106,U-116,U-108,Monitoring,v4.7,2023-01-10,Biennial,2025-01-10,2,1,1,1,,N
+M-0117,Mortgage IFRS 9 Model,Provisioning,IFRS 9,IFRS 9 model for the mortgage portfolio.,International,U-124,U-110,U-120,Monitoring,v4.9,2024-06-17,Annual,2025-10-08,3,2,2,1,,N
+M-0118,Treasury Liquidity Model,Balance Sheet,Liquidity,Liquidity model for the treasury portfolio.,Treasury,U-121,U-110,U-117,Monitoring,v4.6,2024-08-18,Annual,2026-01-19,3,3,2,3,,N
+M-0119,Mortgage Expense Model,Forecasting,Expense,Expense model for the mortgage portfolio.,Retail Banking,U-115,U-125,U-111,Monitoring,v2.8,2024-04-26,Biennial,2025-02-17,3,2,2,1,,N
+M-0120,International Capital Model,CCAR/Stress Testing,Capital,Capital model for the international portfolio.,Enterprise Risk,U-124,U-116,U-120,Monitoring,v3.5,2023-09-24,Annual,2025-09-22,2,1,1,1,,N
+M-0121,Card Rating Model,Credit Risk,Rating,Rating model for the card portfolio.,Business Banking,U-124,U-122,U-105,Monitoring,v2.2,2025-08-04,Semi-annual,2026-06-13,1,2,1,1,,N
+M-0122,Card Reserve allocation Model,Provisioning,Reserve allocation,Reserve allocation model for the card portfolio.,Enterprise Risk,U-124,U-113,U-117,Monitoring,v2.1,2024-08-06,Annual,2026-02-22,1,2,1,1,,N
+M-0123,Small Business Deposit Model,Balance Sheet,Deposit,Deposit model for the small portfolio.,Treasury,U-112,U-116,U-132,Monitoring,v1.5,2023-07-04,Biennial,2025-03-14,2,2,2,2,,N
+M-0124,CRE Expense Model,Forecasting,Expense,Expense model for the cre portfolio.,Retail Banking,U-109,U-107,U-132,Monitoring,v2.0,2023-09-16,Biennial,2025-12-09,3,3,3,3,,N
+M-0125,Mortgage PPNR Model,CCAR/Stress Testing,PPNR,PPNR model for the mortgage portfolio.,Enterprise Risk,U-124,U-113,U-123,Monitoring,v3.9,2023-12-19,Annual,2025-12-13,3,2,3,3,,N
+M-0126,Mortgage PD Model,Credit Risk,PD,PD model for the mortgage portfolio.,Business Banking,U-109,U-107,U-111,Monitoring,v2.9,2024-07-20,Semi-annual,2026-06-14,3,2,3,3,,N
+M-0127,Consumer Q-factor Model,Provisioning,Q-factor,Q-factor model for the consumer portfolio.,Finance,U-121,U-125,U-117,Monitoring,v2.1,2024-06-20,Annual,2026-07-30,3,2,2,1,,N
+M-0128,Consumer ALM/IRR Model,Balance Sheet,ALM/IRR,ALM/IRR model for the consumer portfolio.,Treasury,U-109,U-116,U-105,Monitoring,v1.1,2025-09-11,Semi-annual,2026-09-17,2,1,1,1,,N
+M-0129,CRE Revenue Model,Forecasting,Revenue,Revenue model for the cre portfolio.,Finance,U-106,U-125,U-108,Monitoring,v1.3,2022-06-23,Biennial,2024-09-25,2,2,2,2,,N
+M-0130,Consumer RWA Model,CCAR/Stress Testing,RWA,RWA model for the consumer portfolio.,Enterprise Risk,U-106,U-116,U-123,Monitoring,v1.7,2024-07-11,Semi-annual,2026-07-26,3,2,2,1,,N
+M-0131,Consumer LGD Model,Credit Risk,LGD,LGD model for the consumer portfolio.,Retail Banking,U-121,U-107,U-108,Monitoring,v3.6,2024-02-24,Semi-annual,2026-06-10,2,3,2,1,,N
+M-0132,Consumer Reserve allocation Model,Provisioning,Reserve allocation,Reserve allocation model for the consumer portfolio.,International,U-112,U-107,U-123,Monitoring,v4.0,2025-04-03,Annual,2026-07-04,1,2,1,1,,N
+M-0133,Consumer ALM/IRR Model,Balance Sheet,ALM/IRR,ALM/IRR model for the consumer portfolio.,Treasury,U-124,U-116,U-120,Monitoring,v4.7,2024-06-29,Annual,2026-09-01,2,3,2,1,,N
+M-0134,Treasury Expense Model,Forecasting,Expense,Expense model for the treasury portfolio.,Retail Banking,U-106,U-125,U-108,Monitoring,v4.1,2024-03-29,Annual,2026-05-20,2,2,2,2,,N
+M-0135,Consumer Scenario Model,CCAR/Stress Testing,Scenario,Scenario model for the consumer portfolio.,Enterprise Risk,U-112,U-113,U-105,Monitoring,v3.4,2025-09-29,Biennial,2026-09-08,1,2,1,1,,N
+M-0136,Small Business PD Model,Credit Risk,PD,PD model for the small portfolio.,Business Banking,U-124,U-116,U-120,Monitoring,v4.3,2024-10-28,Semi-annual,2026-08-05,2,2,2,2,,N
+M-0137,Commercial IFRS 9 Model,Provisioning,IFRS 9,IFRS 9 model for the commercial portfolio.,Finance,U-112,U-113,U-117,Monitoring,v1.5,2024-09-11,Annual,2026-05-29,1,1,2,1,,N
+M-0138,International Funds transfer pricing Model,Balance Sheet,Funds transfer pricing,Funds transfer pricing model for the international portfolio.,Treasury,U-112,U-116,U-132,Monitoring,v2.6,2023-01-01,Biennial,2025-05-04,2,1,1,1,,N
+M-0139,Consumer Volume Model,Forecasting,Volume,Volume model for the consumer portfolio.,Finance,U-109,U-122,U-111,Monitoring,v2.6,2024-03-12,Annual,2025-11-24,2,1,1,1,,N
+M-0140,Treasury Scenario Model,CCAR/Stress Testing,Scenario,Scenario model for the treasury portfolio.,Enterprise Risk,U-121,U-116,U-132,Monitoring,v3.9,2025-02-02,Annual,2026-01-01,3,3,3,3,,N
+M-0141,Consumer Rating Model,Credit Risk,Rating,Rating model for the consumer portfolio.,Business Banking,U-106,U-113,U-117,Monitoring,v2.3,2025-10-17,Annual,2026-08-16,2,2,2,2,,N
+M-0142,Small Business Q-factor Model,Provisioning,Q-factor,Q-factor model for the small portfolio.,Enterprise Risk,U-124,U-113,U-120,Monitoring,v4.7,2025-05-17,Semi-annual,2026-09-21,3,2,2,1,,N
+M-0143,Treasury ALM/IRR Model,Balance Sheet,ALM/IRR,ALM/IRR model for the treasury portfolio.,Treasury,U-121,U-107,U-132,Monitoring,v4.6,2024-06-05,Annual,2025-12-25,2,3,2,1,,N
+M-0144,Small Business Revenue Model,Forecasting,Revenue,Revenue model for the small portfolio.,Finance,U-106,U-107,U-120,Monitoring,v2.6,2023-11-19,Biennial,2025-03-08,2,3,2,1,,N
+M-0145,International Capital Model,CCAR/Stress Testing,Capital,Capital model for the international portfolio.,Enterprise Risk,U-109,U-125,U-108,Monitoring,v2.5,2023-11-03,Annual,2026-03-29,3,3,3,3,,N
+M-0146,Consumer Rating Model,Credit Risk,Rating,Rating model for the consumer portfolio.,Business Banking,U-121,U-125,U-117,Monitoring,v3.6,2025-04-08,Semi-annual,2026-08-11,2,1,1,1,,N
+M-0147,Consumer IFRS 9 Model,Provisioning,IFRS 9,IFRS 9 model for the consumer portfolio.,International,U-115,U-113,U-108,Monitoring,v1.0,2025-07-21,Semi-annual,2026-05-15,2,3,2,1,,N
+M-0148,CRE ALM/IRR Model,Balance Sheet,ALM/IRR,ALM/IRR model for the cre portfolio.,Treasury,U-109,U-122,U-123,Monitoring,v1.8,2023-01-01,Biennial,2025-02-16,3,3,3,3,,N
+M-0149,CRE Volume Model,Forecasting,Volume,Volume model for the cre portfolio.,Retail Banking,U-121,U-116,U-123,Monitoring,v4.6,2025-01-03,Annual,2025-11-17,1,2,1,1,,N
+M-0150,Consumer Loss Model,CCAR/Stress Testing,Loss,Loss model for the consumer portfolio.,Enterprise Risk,U-115,U-125,U-105,Reg/Audit,v4.9,2024-12-29,Annual,2026-04-22,3,2,2,1,,N
+M-0151,Commercial Scorecard Model,Credit Risk,Scorecard,Scorecard model for the commercial portfolio.,Commercial Banking,U-106,U-122,U-132,Reg/Audit,v3.5,2024-04-07,Semi-annual,2026-08-20,1,1,2,1,,N
+M-0152,International CECL Model,Provisioning,CECL,CECL model for the international portfolio.,Enterprise Risk,U-115,U-116,U-132,Reg/Audit,v2.2,2025-02-08,Annual,2026-08-05,1,1,2,1,,N
+M-0153,Consumer Prepayment Model,Balance Sheet,Prepayment,Prepayment model for the consumer portfolio.,Treasury,U-106,U-113,U-117,Reg/Audit,v1.2,2022-11-22,Biennial,2024-09-17,3,2,2,1,,N
+M-0154,CRE Volume Model,Forecasting,Volume,Volume model for the cre portfolio.,Retail Banking,U-124,U-107,U-117,Retirement,v2.5,,,,3,2,2,1,,N
+M-0155,Small Business Capital Model,CCAR/Stress Testing,Capital,Capital model for the small portfolio.,Enterprise Risk,U-115,U-122,U-111,Retirement,v3.1,,,,1,1,2,1,,N
+M-0156,Small Business PD Model,Credit Risk,PD,PD model for the small portfolio.,Business Banking,U-109,U-107,U-120,Retirement,v3.3,,,,2,2,2,2,,N
+M-0157,Commercial CECL Model,Provisioning,CECL,CECL model for the commercial portfolio.,Enterprise Risk,U-109,U-107,,Initiation,v4.6,,,,3,3,3,3,,N
+M-0158,Mortgage Liquidity Model,Balance Sheet,Liquidity,Liquidity model for the mortgage portfolio.,Treasury,U-115,U-122,,Initiation,v3.4,,,,3,3,3,3,,N
+M-0159,Treasury Volume Model,Forecasting,Volume,Volume model for the treasury portfolio.,Retail Banking,U-112,U-125,,Development,v3.2,,,,2,1,1,1,,N
+M-0160,Consumer Capital Model,CCAR/Stress Testing,Capital,Capital model for the consumer portfolio.,Enterprise Risk,U-112,U-116,,Development,v1.4,,,,3,2,3,3,,N

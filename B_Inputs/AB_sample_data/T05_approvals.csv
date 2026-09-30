@@ -1,0 +1,60 @@
+approval_id,model_id,decision_date,forum,decision_type,decision,conditions,condition_due_date,condition_status
+A-0201,M-0012,2024-04-13,MRC,Initial approval,Approved,,,
+A-0202,M-0012,2025-06-17,MRC,Annual review,Approved,,,
+A-0203,M-0012,2026-04-23,MRC,Periodic review,Conditional,Resolve the CRE data gap by next quarter; interim risk adjustment on CRE outputs,2026-08-21,Open
+A-0204,M-0015,2024-07-02,MRC,Initial approval,Approved,,,
+A-0205,M-0015,2025-03-19,MRC,Annual review,Approved,,,
+A-0206,M-0015,2025-09-10,MRC,Periodic review,Conditional,PSI breach requires recalibration; revalidation triggered,2026-01-08,Open
+A-0207,M-0031,2023-06-18,MRC,Initial approval,Approved,,,
+A-0208,M-0031,2025-07-17,MRC,Annual review,Conditional,Update macro scenario weights for the current rate environment,2025-11-14,Met
+A-0209,M-0031,2026-01-13,MRC,Annual review,Approved,,,
+A-0210,M-0038,2023-09-26,MRC,Initial approval,Approved,,,
+A-0211,M-0038,2025-12-04,MRC,Periodic review,Conditional,Recalibrate Stage 2 triggers before next half-year close,2026-04-03,Open
+A-0212,M-0042,2024-04-13,MRC,Initial approval,Approved,,,
+A-0213,M-0042,2025-08-06,MRC,Periodic review,Approved,,,
+A-0214,M-0048,2024-05-13,MRC,Initial approval,Approved,,,
+A-0215,M-0048,2026-04-13,MRC,Periodic review,Approved,,,
+A-0216,M-0071,2025-06-17,MRC,ToR,Approved,,,
+A-0217,M-0071,2026-01-13,Validation Committee,Validation complete,Conditional,Five findings issued; remediation plan required,2026-05-13,Met
+A-0218,M-0071,2026-02-22,MRC,Pre-implementation,Conditional,Go-live blocked until the NII rate path and trading tail risk findings are resolved; interim v4.8 as fallback,2026-06-22,Open
+A-0219,M-0082,2026-01-03,MRC,ToR,Approved,,,
+A-0220,M-0085,2026-02-12,MRC,ToR,Approved,,,
+A-0221,M-0003,2025-06-07,MRC,Retirement,Approved,,,
+A-0222,M-0005,2025-09-15,MRC,Retirement,Approved,,,
+A-0223,M-0008,2026-01-23,MRC,Retirement,Approved,,,
+A-0224,M-0111,2024-11-06,MRC,Annual review,Approved,,,
+A-0225,M-0112,2026-05-04,MRC,Annual review,Approved,,,
+A-0226,M-0113,2026-04-13,MRC,Annual review,Approved,,,
+A-0227,M-0115,2024-12-15,MRC,Annual review,Approved,,,
+A-0228,M-0116,2025-03-16,MRC,Annual review,Conditional,Recalibrate before the next review,2025-07-14,Met
+A-0229,M-0117,2026-02-23,MRC,Annual review,Conditional,Recalibrate before the next review,2026-06-23,Open
+A-0230,M-0118,2026-05-17,MRC,Annual review,Approved,,,
+A-0231,M-0119,2025-12-18,MRC,Annual review,Approved,,,
+A-0232,M-0120,2024-11-23,MRC,Annual review,Approved,,,
+A-0233,M-0121,2026-03-21,MRC,Annual review,Conditional,Recalibrate before the next review,2026-07-19,Open
+A-0234,M-0122,2025-09-20,MRC,Annual review,Conditional,Recalibrate before the next review,2026-01-18,Met
+A-0235,M-0123,2025-01-13,MRC,Annual review,Approved,,,
+A-0236,M-0124,2026-01-04,MRC,Annual review,Approved,,,
+A-0237,M-0125,2025-06-06,MRC,Annual review,Conditional,Recalibrate before the next review,2025-10-04,Open
+A-0238,M-0126,2026-01-23,MRC,Annual review,Approved,,,
+A-0239,M-0127,2025-12-05,MRC,Annual review,Approved,,,
+A-0240,M-0129,2025-11-06,MRC,Annual review,Approved,,,
+A-0241,M-0130,2026-02-03,MRC,Annual review,Approved,,,
+A-0242,M-0131,2025-11-21,MRC,Annual review,Conditional,Recalibrate before the next review,2026-03-21,Met
+A-0243,M-0133,2025-10-22,MRC,Annual review,Approved,,,
+A-0244,M-0135,2025-09-22,MRC,Annual review,Approved,,,
+A-0245,M-0136,2025-01-26,MRC,Annual review,Approved,,,
+A-0246,M-0137,2024-11-26,MRC,Annual review,Approved,,,
+A-0247,M-0138,2025-10-16,MRC,Annual review,Approved,,,
+A-0248,M-0139,2025-01-14,MRC,Annual review,Approved,,,
+A-0249,M-0140,2025-03-19,MRC,Annual review,Conditional,Recalibrate before the next review,2025-07-17,Met
+A-0250,M-0143,2025-06-13,MRC,Annual review,Approved,,,
+A-0251,M-0144,2026-01-25,MRC,Annual review,Conditional,Recalibrate before the next review,2026-05-25,Met
+A-0252,M-0145,2026-05-07,MRC,Annual review,Approved,,,
+A-0253,M-0146,2025-03-22,MRC,Annual review,Approved,,,
+A-0254,M-0147,2024-11-21,MRC,Annual review,Approved,,,
+A-0255,M-0148,2025-08-01,MRC,Annual review,Approved,,,
+A-0256,M-0151,2025-03-25,MRC,Annual review,Approved,,,
+A-0257,M-0152,2026-05-26,MRC,Annual review,Approved,,,
+A-0258,M-0153,2025-04-04,MRC,Annual review,Approved,,,
+A-0259,M-0154,2024-11-30,MRC,Retirement,Approved,,,

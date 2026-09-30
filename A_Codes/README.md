@@ -1,0 +1,82 @@
+# MRM/MIS — code
+
+Folders run in prefix order. Inputs live in `../B_Inputs`. Superseded code is copied to `_OLD/` (never deleted).
+
+| Step | Folder | What |
+|---|---|---|
+| AA | `AA_infra/` | docker-compose: PostgreSQL 16, MinIO, Redis |
+| AB | `AB_backend/` | FastAPI + SQLAlchemy + Alembic (Python 3.14 venv) |
+| AC | `AC_frontend/` | React + TypeScript + Vite |
+| AD | `AD_seed/` | Deterministic generators: `generate_seed.py` (256-model seed + ~1,100 synthetic evidence PDFs → `B_Inputs/AC_seed`, demo files → `B_Inputs/AD_demo_files`); `generate_samples.py` (Phase-2 samples, superseded) |
+| AE | `AE_launcher/` | One-click start/stop: shortcuts in this folder, `start_mrm.ps1`, `stop_mrm.ps1` |
+| AZ | `AZ_tools/` | Utilities (`snapshot.sh` copies a file to `_OLD` before it is edited) |
+
+## One-click start (development mode)
+
+In `A_Codes\AE_launcher`, double-click **MRM Governance MIS**: it starts the backend and frontend in two minimised windows
+and opens http://localhost:5173. The first start creates the database and loads the seed (about 30 s).
+**Stop MRM Governance MIS** stops both. To recreate the shortcuts:
+`powershell -ExecutionPolicy Bypass -File A_Codes\AE_launcher\create_shortcuts.ps1`.
+The launcher uses SQLite and local file storage in `AB_backendar` (no Docker needed).
+
+## First run (PowerShell, from `A_Codes`)
+
+```powershell
+# AA — infrastructure (needs Docker Desktop)
+docker compose -f AA_infra/docker-compose.yml --env-file AA_infra/.env up -d
+
+# AB — backend
+cd AB_backend
+.venv\Scripts\python -m alembic upgrade head
+.venv\Scripts\python -m app.cli reset              # regenerates and loads the 256-model seed via the import engine
+.venv\Scripts\python -m uvicorn app.main:app --reload --port 8000
+
+# Without Docker (development only): SQLite + local file storage
+#   $env:MRM_DATABASE_URL="sqlite:///./var/dev.db"; $env:MRM_STORAGE_BACKEND="local"
+#   .venv\Scripts\python -c "from app.db import engine; from app.models import Base; Base.metadata.create_all(engine)"
+#   then `app.cli reset` and uvicorn as above
+
+# AC — frontend (second terminal)
+cd AC_frontend
+npm run dev                                         # http://localhost:5173
+```
+
+Seed dates are relative to the business date: Admin → Reset (or `app.cli reset`) regenerates the seed for today
+(or `MRM_TODAY_OVERRIDE=YYYY-MM-DD`) first, so revalidation and overdue states look the same on every demo.
+
+## Importing data
+
+Import Centre (Admin): download blank templates, upload one or many `.xlsx`/`.csv` files (or a folder), review the
+preview (valid / invalid / new / update / unchanged rows), then **Load**. Invalid rows are rejected with a
+downloadable error report; valid rows load. Files in one batch load in template order (T12 → T01 → T02 → T03–T05),
+so a batch can create models and their findings together. Demo files with deliberate errors are in
+`B_Inputs/AD_demo_files`. From the command line: `.venv\Scripts\python -m app.cli import FILE [FILE ...]`.
+
+## Documents
+
+Document Centre: upload one file (choose model, type, version), many files, a whole folder, or a ZIP package.
+Folder paths are kept as a folder tree; models are recognised from names like `M-0012/…`, types from keywords
+(policy `document_type_keywords`), versions from `_v2.0` in the file name. A `manifest.xlsx`/`.csv` (template T17)
+in the upload sets model, type and version explicitly; T18 maps folders to models. Batches are analysed in the
+background, then you review and correct the mapping and choose **Store**. Exact duplicates (SHA-256) are not stored
+again unless you choose "new version"; versions are never overwritten; documents are archived, never deleted.
+Required documents per lifecycle phase (`required_docs_*`) drive completeness and the Documentation score.
+Reset loads the seed evidence through the same batch path.
+
+## Tests
+
+```powershell
+cd AB_backend
+.venv\Scripts\python -m pytest                      # rules + API tests (SQLite, no infra needed)
+$env:MRM_TEST_POSTGRES_URL="postgresql+psycopg://mrm:mrm_dev_password@localhost:5432/mrm"
+.venv\Scripts\python -m pytest tests/test_postgres.py   # migrations, schema drift, audit immutability
+cd ..\AC_frontend; npm run build                    # typecheck + build
+```
+
+## Versioning rule
+
+Before changing any file here, copy it to `_OLD/<same relative path>/<name>_v<N>_<YYYYMMDD>.<ext>`:
+
+```bash
+bash A_Codes/AZ_tools/snapshot.sh A_Codes AB_backend/app/main.py
+```

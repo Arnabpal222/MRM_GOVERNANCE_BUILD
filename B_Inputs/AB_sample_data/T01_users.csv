@@ -1,0 +1,36 @@
+user_id,full_name,email,role,business_line,active
+U-101,Jia Chen,jia.chen@demo-bank.example,Model Owner; Validator,Model Risk Management,Y
+U-102,Rahul Kumar,rahul.kumar@demo-bank.example,Model Developer,,Y
+U-103,Anna Williams,anna.williams@demo-bank.example,Model Owner,,Y
+U-104,Thanh Nguyen,thanh.nguyen@demo-bank.example,Model Developer,,Y
+U-105,Maria Garcia,maria.garcia@demo-bank.example,Validator,Model Risk Management,Y
+U-106,Daniel Park,daniel.park@demo-bank.example,Model Owner,,Y
+U-107,Kavya Sharma,kavya.sharma@demo-bank.example,Model Developer,,Y
+U-108,Laura Thompson,laura.thompson@demo-bank.example,Validator,Model Risk Management,Y
+U-109,Ben Foster,ben.foster@demo-bank.example,Model Owner,,Y
+U-110,Joon Lee,joon.lee@demo-bank.example,Model Developer,,Y
+U-111,Carmen Martinez,carmen.martinez@demo-bank.example,Validator,Model Risk Management,Y
+U-112,Nadia Ahmed,nadia.ahmed@demo-bank.example,Model Owner,,Y
+U-113,Yuki Tanaka,yuki.tanaka@demo-bank.example,Model Developer,,Y
+U-114,Patrick O'Brien,patrick.obrien@demo-bank.example,Validator,Model Risk Management,Y
+U-115,Ruth Stevens,ruth.stevens@demo-bank.example,Model Owner,,Y
+U-116,Hans Muller,hans.muller@demo-bank.example,Model Developer,,Y
+U-117,Emily Wong,emily.wong@demo-bank.example,Validator,Model Risk Management,Y
+U-118,Greta Hoffman,greta.hoffman@demo-bank.example,Model Owner,,Y
+U-119,Andre Costa,andre.costa@demo-bank.example,Model Developer,,Y
+U-120,Tara Raj,tara.raj@demo-bank.example,Validator,Model Risk Management,Y
+U-121,Lena Kim,lena.kim@demo-bank.example,Model Owner,,Y
+U-122,Sora Nakamura,sora.nakamura@demo-bank.example,Model Developer,,Y
+U-123,David Brown,david.brown@demo-bank.example,Validator,Model Risk Management,Y
+U-124,Megan Taylor,megan.taylor@demo-bank.example,Model Owner,,Y
+U-125,Wei Zhang,wei.zhang@demo-bank.example,Model Developer,,Y
+U-126,Jorge Fernandez,jorge.fernandez@demo-bank.example,Validator,Model Risk Management,Y
+U-127,Fiona Johnson,fiona.johnson@demo-bank.example,Model Owner,,Y
+U-128,Bina Gupta,bina.gupta@demo-bank.example,Model Developer,,Y
+U-129,Katya Ivanova,katya.ivanova@demo-bank.example,Validator,Model Risk Management,Y
+U-130,Viktor Petrov,viktor.petrov@demo-bank.example,Model Owner,,Y
+U-131,Chidi Okafor,chidi.okafor@demo-bank.example,Model Developer,,Y
+U-132,Amelie Dubois,amelie.dubois@demo-bank.example,Validator,Model Risk Management,Y
+U-133,Tobias Fischer,tobias.fischer@demo-bank.example,Model Owner,,Y
+U-134,Marco Rossi,marco.rossi@demo-bank.example,Model Developer,,Y
+U-135,Per Johansson,per.johansson@demo-bank.example,Model Developer,,Y

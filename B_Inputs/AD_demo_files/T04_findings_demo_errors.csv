@@ -1,0 +1,6 @@
+finding_id,model_id,validation_id,title,description,severity,category,status,owner_id,raised_date,due_date,closed_date,root_cause,management_response,remediation_action
+F-9001,M-0012,,Override log incomplete,Manual overrides are not logged.,Low,Documentation,Open,U-003,2026-09-20,2026-12-19,,,,
+F-9002,M-0012,,Challenger model missing,No challenger benchmark.,Severe,Methodology,Open,U-003,2026-09-20,2026-12-19,,,,
+F-9003,M-9999,,Unknown model,References a model that does not exist.,Medium,Data,Open,U-003,2026-09-20,2026-12-19,,,,
+F-9004,M-0042,,Closed without date,Status Closed but no closed date.,Medium,Data,Closed,U-003,2026-08-21,2026-10-20,,,,
+F-9005,M-0042,,Prepayment curve stale,Prepayment curve not refreshed this year.,Medium,Performance,Open,U-003,15/09/2026,2026-11-29,,,,

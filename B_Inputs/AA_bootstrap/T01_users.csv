@@ -1,0 +1,13 @@
+user_id,full_name,email,role,business_line,active
+U-001,Priya Raman,p.raman@demo-bank.example,Admin,Model Risk Management,Y
+U-002,Daniel Okafor,d.okafor@demo-bank.example,Platform Administrator,Technology,Y
+U-003,Helen Carter,h.carter@demo-bank.example,Model Owner,Commercial Banking,Y
+U-007,Marcus Lee,m.lee@demo-bank.example,Model Owner,Treasury,Y
+U-014,Sarah Patel,s.patel@demo-bank.example,Validator,Enterprise Risk,Y
+U-016,Tomasz Nowak,t.nowak@demo-bank.example,Validator,Enterprise Risk,Y
+U-021,Aisha Khan,a.khan@demo-bank.example,Model Developer,Commercial Banking,Y
+U-040,Robert Diaz,r.diaz@demo-bank.example,MRC Member; Executive,Enterprise Risk,Y
+U-041,Grace Liu,g.liu@demo-bank.example,Auditor,Internal Audit,Y
+U-042,James Whitfield,j.whitfield@demo-bank.example,Executive,Executive Office,Y
+U-050,Nina Petrova,n.petrova@demo-bank.example,Monitoring Analyst,Model Risk Management,Y
+U-031,Carlos Mendes,c.mendes@demo-bank.example,Data Owner,Commercial Banking,Y

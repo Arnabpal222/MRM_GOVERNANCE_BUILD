@@ -1,0 +1,9 @@
+# Normalise text line endings; never touch binary evidence and templates.
+* text=auto
+*.ps1 text eol=crlf
+*.pdf binary
+*.xlsx binary
+*.docx binary
+*.ico binary
+*.png binary
+*.sh text eol=lf

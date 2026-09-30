@@ -1,0 +1,77 @@
+finding_id,model_id,validation_id,title,description,severity,category,status,owner_id,raised_date,due_date,closed_date
+F-0001,M-0012,V-0001,CRE obligor data gap,Segment B data quality gap: 14% of obligor financial statements missing in construction lending.,Critical,Data,Open,U-101,2026-07-22,2026-08-21,
+F-0002,M-0012,V-0001,Macro overlay undocumented,Model documentation does not reflect the December parameter update to the macro overlay.,Medium,Documentation,Open,U-101,2026-08-01,2026-11-14,
+F-0003,M-0015,V-0002,LGD floor deviation,LGD floor methodology deviates from policy.,Medium,Methodology,Open,U-103,2026-08-01,2026-10-20,
+F-0004,M-0015,V-0002,Collateral valuation lag,Collateral valuation lag above 90 days for 8% of the retail mortgage portfolio.,Critical,Data,Open,U-103,2026-08-01,2026-09-18,
+F-0005,M-0031,V-0004,Scenario weights stale,Macro scenario weights reflect prior-year ALCO assumptions and need committee refresh.,Medium,Methodology,Open,U-109,2026-08-01,2026-10-30,
+F-0006,M-0031,V-0004,Q-factor evidence missing,Q-factor documentation incomplete for the CRE segment.,Medium,Documentation,Open,U-109,2026-08-01,2026-11-24,
+F-0007,M-0038,V-0005,Stage 2 triggers,Stage 2 trigger calibration needs a post-pandemic refresh; thresholds over-stage by about 15%.,Critical,Methodology,Open,U-112,2026-08-01,2026-10-18,
+F-0008,M-0038,V-0005,Cross-border staging,GBP and EUR books apply different SICR definitions.,Medium,Data,Open,U-112,2026-08-01,2026-11-09,
+F-0009,M-0038,V-0005,Disclosure template gap,Pillar 3 disclosure table not aligned to the current template.,Medium,Documentation,Open,U-112,2026-08-01,2026-12-09,
+F-0010,M-0042,V-0006,NMD behaviour assumptions,Repricing beta assumes 60% pass-through against 72% observed.,Medium,Methodology,Open,U-115,2026-08-01,2026-09-22,
+F-0011,M-0048,V-0007,Intraday data gap,Four-hour gap in real-time position data from APAC operations.,Medium,Data,Open,U-118,2026-08-01,2026-10-25,
+F-0012,M-0071,V-0010,NII rate path,NII component needs rate-path recalibration: +200bp shock 15% above benchmark.,Critical,Methodology,Open,U-127,2026-08-01,2026-10-12,
+F-0013,M-0071,V-0010,Fee income assumptions,Fee income projection uses undocumented AUM growth assumptions.,Medium,Documentation,Open,U-127,2026-08-01,2026-11-04,
+F-0014,M-0071,V-0010,Trading tail risk,Trading revenue tail risk underestimated; 99th percentile exceedances twice the expected rate.,Critical,Methodology,Open,U-127,2026-08-01,2026-10-12,
+F-0015,M-0071,V-0010,UAT sign-off,UAT sign-off delayed by a core banking interface dependency.,Medium,Implementation,In Progress,U-127,2026-08-01,2026-10-20,
+F-0016,M-0076,V-0011,CRE loss rates stale,CRE loss rates based on 2019 vintage data; no post-pandemic structural update.,Critical,Data,Open,U-130,2026-08-01,2026-10-15,
+F-0017,M-0076,V-0011,Auto loan recalibration,Auto loan delinquency transition matrix not updated; subprime performance has diverged.,Critical,Methodology,Open,U-130,2026-08-01,2026-10-15,
+F-0018,M-0076,V-0011,Static correlations,Cross-portfolio correlation uses static assumptions with no tail dependence.,Medium,Methodology,Open,U-130,2026-08-01,2026-11-19,
+F-0019,M-0076,V-0011,Scenario mapping,"Unemployment, HPI and commercial vacancy not mapped to supervisory scenario variables.",Medium,Data,Open,U-130,2026-08-01,2026-11-19,
+F-0020,M-0076,V-0011,Sensitivity section,Documentation lacks the sensitivity analysis section required by policy 4.2.3.,Low,Documentation,Open,U-130,2026-08-01,2026-12-19,
+F-0021,M-0078,V-0012,RWA linkage,Credit risk RWA feed into the capital projection is unreconciled.,Critical,Methodology,Open,U-101,2026-08-01,2026-10-10,
+F-0022,M-0078,V-0012,Capital actions,Dividend and buyback assumptions are undocumented.,Medium,Documentation,Open,U-101,2026-08-01,2026-11-09,
+F-0023,M-0078,V-0012,Payout ratio conflict,Dividend payout ratio assumption conflicts with the board-approved capital plan.,Medium,Methodology,Open,U-101,2026-08-01,2026-11-09,
+F-0024,M-0107,V-0013,Assumption log incomplete,Assumption log incomplete (Commercial Q-factor Model).,Medium,Documentation,Closed,U-112,2025-12-20,2026-06-15,2026-06-15
+F-0025,M-0107,V-0013,Segmentation not revisited since development,Segmentation not revisited since development (Commercial Q-factor Model).,Medium,Methodology,Open,U-112,2026-03-06,2026-09-17,
+F-0026,M-0108,V-0014,Rank-ordering weakened in the latest period,Rank-ordering weakened in the latest period (Small Business Prepayment Model).,Low,Performance,Open,U-109,2026-01-13,2026-05-03,
+F-0027,M-0109,V-0015,Source extract does not reconcile to the ledger,Source extract does not reconcile to the ledger (CRE Revenue Model).,Medium,Data,Closed,U-124,2026-07-15,2027-02-23,2026-09-30
+F-0028,M-0110,V-0016,Production code differs from the validated version,Production code differs from the validated version (Consumer Scenario Model).,Medium,Implementation,Open,U-109,2026-08-29,2026-12-14,
+F-0029,M-0110,V-0016,Assumption log incomplete,Assumption log incomplete (Consumer Scenario Model).,Critical,Documentation,In Progress,U-109,2026-01-24,2026-07-29,
+F-0030,M-0110,V-0016,Rank-ordering weakened in the latest period,Rank-ordering weakened in the latest period (Consumer Scenario Model).,Critical,Performance,In Progress,U-109,2026-05-08,2026-07-29,
+F-0031,M-0111,,Segmentation not revisited since development,Segmentation not revisited since development (Consumer LGD Model).,Medium,Methodology,Open,U-115,2026-03-04,2026-05-25,
+F-0032,M-0114,V-0017,Assumption log incomplete,Assumption log incomplete (Mortgage Revenue Model).,Critical,Documentation,Open,U-112,2026-06-10,2026-12-14,
+F-0033,M-0114,V-0017,Source extract does not reconcile to the ledger,Source extract does not reconcile to the ledger (Mortgage Revenue Model).,Medium,Data,In Progress,U-112,2026-08-02,2027-01-14,
+F-0034,M-0114,V-0017,Segmentation not revisited since development,Segmentation not revisited since development (Mortgage Revenue Model).,Low,Methodology,In Progress,U-112,2026-06-08,2026-12-26,
+F-0035,M-0115,V-0018,Assumption log incomplete,Assumption log incomplete (Consumer Capital Model).,Medium,Documentation,Closed,U-124,2026-06-11,2026-09-28,2026-09-02
+F-0036,M-0115,V-0018,Segmentation not revisited since development,Segmentation not revisited since development (Consumer Capital Model).,Medium,Methodology,In Progress,U-124,2026-04-05,2026-07-25,
+F-0037,M-0116,V-0019,Assumption log incomplete,Assumption log incomplete (Mortgage Collections Model).,Medium,Documentation,In Progress,U-106,2026-03-22,2026-11-11,
+F-0038,M-0116,V-0019,Segmentation not revisited since development,Segmentation not revisited since development (Mortgage Collections Model).,Critical,Methodology,Closed,U-106,2026-02-06,2026-08-08,2026-08-06
+F-0039,M-0117,V-0020,Rank-ordering weakened in the latest period,Rank-ordering weakened in the latest period (Mortgage IFRS 9 Model).,Medium,Performance,Closed,U-124,2026-04-11,2026-09-08,2026-08-24
+F-0040,M-0117,V-0020,Production code differs from the validated version,Production code differs from the validated version (Mortgage IFRS 9 Model).,Medium,Implementation,In Progress,U-124,2026-04-02,2026-11-13,
+F-0041,M-0117,V-0020,Source extract does not reconcile to the ledger,Source extract does not reconcile to the ledger (Mortgage IFRS 9 Model).,Low,Data,In Progress,U-124,2026-04-10,2026-08-28,
+F-0042,M-0118,V-0021,Segmentation not revisited since development,Segmentation not revisited since development (Treasury Liquidity Model).,Low,Methodology,In Progress,U-121,2026-01-28,2026-06-11,
+F-0043,M-0118,V-0021,Segmentation not revisited since development,Segmentation not revisited since development (Treasury Liquidity Model).,Low,Methodology,Closed,U-121,2026-03-02,2026-09-13,2026-08-30
+F-0044,M-0118,V-0021,Source extract does not reconcile to the ledger,Source extract does not reconcile to the ledger (Treasury Liquidity Model).,Medium,Data,Open,U-121,2025-12-18,2026-07-09,
+F-0045,M-0126,V-0029,Production code differs from the validated version,Production code differs from the validated version (Mortgage PD Model).,Low,Implementation,Open,U-109,2026-07-27,2027-03-14,
+F-0046,M-0126,V-0029,Source extract does not reconcile to the ledger,Source extract does not reconcile to the ledger (Mortgage PD Model).,Medium,Data,In Progress,U-109,2025-12-12,2026-04-10,
+F-0047,M-0126,V-0029,Segmentation not revisited since development,Segmentation not revisited since development (Mortgage PD Model).,Medium,Methodology,Open,U-109,2026-02-06,2026-04-15,
+F-0048,M-0129,V-0032,Segmentation not revisited since development,Segmentation not revisited since development (CRE Revenue Model).,Critical,Methodology,Open,U-106,2026-01-06,2026-08-04,
+F-0049,M-0129,V-0032,Production code differs from the validated version,Production code differs from the validated version (CRE Revenue Model).,Medium,Implementation,Closed,U-106,2026-06-01,2026-08-12,2026-08-01
+F-0050,M-0129,V-0032,Source extract does not reconcile to the ledger,Source extract does not reconcile to the ledger (CRE Revenue Model).,Medium,Data,Open,U-106,2026-03-22,2026-06-13,
+F-0051,M-0130,V-0033,Source extract does not reconcile to the ledger,Source extract does not reconcile to the ledger (Consumer RWA Model).,Low,Data,In Progress,U-106,2026-02-20,2026-06-26,
+F-0052,M-0130,V-0033,Production code differs from the validated version,Production code differs from the validated version (Consumer RWA Model).,Critical,Implementation,In Progress,U-106,2025-12-28,2026-08-09,
+F-0053,M-0133,V-0036,Source extract does not reconcile to the ledger,Source extract does not reconcile to the ledger (Consumer ALM/IRR Model).,Low,Data,In Progress,U-124,2026-04-23,2026-07-22,
+F-0054,M-0133,V-0036,Assumption log incomplete,Assumption log incomplete (Consumer ALM/IRR Model).,Critical,Documentation,Open,U-124,2026-07-17,2027-01-31,
+F-0055,M-0133,V-0036,Segmentation not revisited since development,Segmentation not revisited since development (Consumer ALM/IRR Model).,Medium,Methodology,Open,U-124,2026-07-26,2027-01-01,
+F-0056,M-0134,V-0037,Rank-ordering weakened in the latest period,Rank-ordering weakened in the latest period (Treasury Expense Model).,Low,Performance,Open,U-106,2026-04-07,2026-08-02,
+F-0057,M-0134,V-0037,Source extract does not reconcile to the ledger,Source extract does not reconcile to the ledger (Treasury Expense Model).,Low,Data,Open,U-106,2026-08-11,2027-01-16,
+F-0058,M-0134,V-0037,Rank-ordering weakened in the latest period,Rank-ordering weakened in the latest period (Treasury Expense Model).,Medium,Performance,Closed,U-106,2026-01-29,2026-04-27,2026-04-02
+F-0059,M-0135,V-0038,Segmentation not revisited since development,Segmentation not revisited since development (Consumer Scenario Model).,Low,Methodology,Open,U-112,2026-08-11,2026-12-04,
+F-0060,M-0135,V-0038,Source extract does not reconcile to the ledger,Source extract does not reconcile to the ledger (Consumer Scenario Model).,Medium,Data,In Progress,U-112,2026-05-08,2026-10-17,
+F-0061,M-0136,V-0039,Source extract does not reconcile to the ledger,Source extract does not reconcile to the ledger (Small Business PD Model).,Low,Data,Closed,U-124,2026-06-03,2026-08-21,2026-07-31
+F-0062,M-0136,V-0039,Source extract does not reconcile to the ledger,Source extract does not reconcile to the ledger (Small Business PD Model).,Critical,Data,In Progress,U-124,2026-06-13,2026-11-08,
+F-0063,M-0136,V-0039,Segmentation not revisited since development,Segmentation not revisited since development (Small Business PD Model).,Critical,Methodology,Open,U-124,2025-12-20,2026-07-29,
+F-0064,M-0137,V-0040,Source extract does not reconcile to the ledger,Source extract does not reconcile to the ledger (Commercial IFRS 9 Model).,Critical,Data,In Progress,U-112,2026-04-22,2026-09-13,
+F-0065,M-0137,V-0040,Segmentation not revisited since development,Segmentation not revisited since development (Commercial IFRS 9 Model).,Low,Methodology,Open,U-112,2026-01-17,2026-04-26,
+F-0066,M-0140,V-0043,Source extract does not reconcile to the ledger,Source extract does not reconcile to the ledger (Treasury Scenario Model).,Medium,Data,In Progress,U-121,2026-01-16,2026-04-06,
+F-0067,M-0140,V-0043,Assumption log incomplete,Assumption log incomplete (Treasury Scenario Model).,Medium,Documentation,Closed,U-121,2026-05-16,2026-07-30,2026-07-08
+F-0068,M-0141,V-0044,Production code differs from the validated version,Production code differs from the validated version (Consumer Rating Model).,Critical,Implementation,Open,U-106,2026-08-16,2026-11-14,
+F-0069,M-0142,V-0045,Assumption log incomplete,Assumption log incomplete (Small Business Q-factor Model).,Medium,Documentation,Closed,U-124,2026-06-23,2026-08-22,2026-08-11
+F-0070,M-0143,V-0046,Rank-ordering weakened in the latest period,Rank-ordering weakened in the latest period (Treasury ALM/IRR Model).,Medium,Performance,Closed,U-121,2026-04-13,2026-09-18,2026-08-24
+F-0071,M-0144,V-0047,Assumption log incomplete,Assumption log incomplete (Small Business Revenue Model).,Low,Documentation,Open,U-106,2026-01-29,2026-04-13,
+F-0072,M-0144,V-0047,Rank-ordering weakened in the latest period,Rank-ordering weakened in the latest period (Small Business Revenue Model).,Low,Performance,Closed,U-106,2026-07-06,2026-10-01,2026-09-24
+F-0073,M-0144,V-0047,Production code differs from the validated version,Production code differs from the validated version (Small Business Revenue Model).,Medium,Implementation,In Progress,U-106,2026-04-23,2026-10-27,
+F-0074,M-0145,V-0048,Rank-ordering weakened in the latest period,Rank-ordering weakened in the latest period (International Capital Model).,Critical,Performance,Open,U-109,2026-03-06,2026-05-07,
+F-0075,M-0145,V-0048,Rank-ordering weakened in the latest period,Rank-ordering weakened in the latest period (International Capital Model).,Medium,Performance,Open,U-109,2026-04-01,2026-08-02,
+F-0076,M-0145,V-0048,Segmentation not revisited since development,Segmentation not revisited since development (International Capital Model).,Critical,Methodology,In Progress,U-109,2025-12-18,2026-03-01,

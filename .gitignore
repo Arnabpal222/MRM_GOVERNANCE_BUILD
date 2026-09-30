@@ -1,0 +1,23 @@
+# Machine-specific — rebuilt on each computer by A_Codes/AE_launcher/setup_first_time.ps1
+.venv/
+node_modules/
+dist/
+*.tsbuildinfo
+__pycache__/
+.pytest_cache/
+
+# Local runtime data (SQLite database, stored document copies) — recreated by the first start / Reset to seed
+A_Codes/AB_backend/var/
+
+# Local settings (copied from .env.example by the setup script)
+.env
+
+# Shortcuts hold absolute paths of one machine — recreated by the setup script
+*.lnk
+
+# OS / editor noise
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/

@@ -1,0 +1,28 @@
+setting_key,value,value_type,category,description
+tier_high_min,10,integer,Tiering,Tier score at or above this is High (R1)
+tier_medium_min,7,integer,Tiering,Tier score at or above this (and below High) is Medium (R1)
+reval_lead_days,60,integer,Revalidation,Days before due date a Monitoring model shows in Revalidation (R3)
+due_soon_days,30,integer,Revalidation,Days to due at or below which revalidation is Due Soon (R4)
+revalidation_frequencies,Monthly; Quarterly; Semi-annual; Annual; Biennial,list,Revalidation,Allowed revalidation frequencies
+validation_sla_days_high,45,integer,Validation,Validation SLA in days for High-tier models (R9)
+validation_sla_days_medium,60,integer,Validation,Validation SLA in days for Medium-tier models (R9)
+validation_sla_days_low,90,integer,Validation,Validation SLA in days for Low-tier models (R9)
+weight_documentation,25,percent,Governance score,Documentation component weight (R8)
+weight_validation_currency,25,percent,Governance score,Validation currency component weight (R8)
+weight_issue_remediation,20,percent,Governance score,Issue remediation component weight (R8)
+weight_mrc_compliance,15,percent,Governance score,MRC compliance component weight (R8)
+weight_monitoring,15,percent,Governance score,Monitoring component weight (R8)
+required_docs_development,ToR,list,Documents,Required documents in Development
+required_docs_validation,ToR; MDD,list,Documents,Required documents in Validation
+required_docs_production,ToR; MDD; Validation Report; Approval Evidence; Monitoring Plan,list,Documents,Required documents from Implementation onwards (BRD §40)
+mdd_required_sections,Purpose and use; Data; Methodology; Assumptions; Limitations; Testing and performance; Implementation; Monitoring plan,list,Documents,Sections an MDD must contain
+document_types,Terms of Reference; Model Development Document; Validation Report; Monitoring Report; Backtesting Report; Model Approval/MRC Paper; Model Change Document; Data Quality Report; Regulatory/Audit Evidence; Model Inventory Evidence; Other,list,Documents,Allowed document types (BRD §28)
+dq_default_pass_pct,98,percent,Data quality,DQ pass threshold when a rule gives none (R7)
+dq_default_warn_pct,95,percent,Data quality,DQ warn threshold when a rule gives none (R7)
+monitoring_frequencies,Monthly; Quarterly; Semi-annual; Annual,list,Monitoring,Allowed monitoring frequencies
+repeated_breach_consecutive_periods,2,integer,Monitoring,Same KPI failing this many consecutive periods is a repeated breach
+repeated_breach_window_fails,3,integer,Monitoring,Failures within the window that count as repeated
+repeated_breach_window_periods,4,integer,Monitoring,Window length (periods) for repeated-breach detection
+max_document_size_mb,10,integer,Files,Maximum size of an individual uploaded document
+max_zip_size_mb,200,integer,Files,Maximum size of an uploaded ZIP package
+max_zip_file_count,500,integer,Files,Maximum number of files in a ZIP package

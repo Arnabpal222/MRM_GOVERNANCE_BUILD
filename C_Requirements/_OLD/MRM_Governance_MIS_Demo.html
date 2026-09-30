@@ -1,0 +1,1587 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body style="margin:0">
+<title>MRM Governance MIS Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: governance console — sticky run bar, left flow rail with a live database ledger, stage canvas on the right. Dark-first. */
+:root {
+  color-scheme: dark;
+  --bg: #0E1118; --surface: #151A24; --raised: #1B2130; --sunk: #10141C;
+  --line: #262E3F; --line-2: #33405A;
+  --text: #E4E8F1; --muted: #98A0B3; --faint: #636C82;
+  --accent: #8C9EFF; --accent-ink: #0E1118; --accent-soft: rgba(140,158,255,.13);
+  --good: #57B77F; --warn: #E3A94B; --bad: #EC6A57; --info: #6AAEEA;
+  --good-soft: rgba(87,183,127,.14); --warn-soft: rgba(227,169,75,.15); --bad-soft: rgba(236,106,87,.15); --info-soft: rgba(106,174,234,.14);
+  --c1: #7AA2F7; --c2: #B294F0; --c3: #4FC1A6; --c4: #E0A458; --c5: #E07A8A;
+  --display: 'Archivo', 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
+  --body: 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --r: 8px; --r-sm: 5px;
+}
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) {
+  color-scheme: light;
+  --bg: #F3F4F7; --surface: #FFFFFF; --raised: #F6F7FA; --sunk: #ECEEF3;
+  --line: #DDE1EA; --line-2: #C6CCDA;
+  --text: #161A24; --muted: #555E73; --faint: #8A92A5;
+  --accent: #3B53D4; --accent-ink: #FFFFFF; --accent-soft: rgba(59,83,212,.09);
+  --good: #23874E; --warn: #A86A0C; --bad: #C23C2A; --info: #2A72B8;
+  --good-soft: rgba(35,135,78,.10); --warn-soft: rgba(168,106,12,.11); --bad-soft: rgba(194,60,42,.10); --info-soft: rgba(42,114,184,.10);
+  --c1: #2F68D0; --c2: #7652CC; --c3: #13826B; --c4: #AE6A0E; --c5: #BC3F5C;
+} }
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #F3F4F7; --surface: #FFFFFF; --raised: #F6F7FA; --sunk: #ECEEF3;
+  --line: #DDE1EA; --line-2: #C6CCDA;
+  --text: #161A24; --muted: #555E73; --faint: #8A92A5;
+  --accent: #3B53D4; --accent-ink: #FFFFFF; --accent-soft: rgba(59,83,212,.09);
+  --good: #23874E; --warn: #A86A0C; --bad: #C23C2A; --info: #2A72B8;
+  --good-soft: rgba(35,135,78,.10); --warn-soft: rgba(168,106,12,.11); --bad-soft: rgba(194,60,42,.10); --info-soft: rgba(42,114,184,.10);
+  --c1: #2F68D0; --c2: #7652CC; --c3: #13826B; --c4: #AE6A0E; --c5: #BC3F5C;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--text); }
+body { font: 14px/1.5 var(--body); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Top run bar */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); }
+.topbar-in { display: flex; align-items: center; gap: 16px; padding: 10px 20px; flex-wrap: wrap; }
+.brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.brand b { font-family: var(--display); font-stretch: 88%; font-weight: 750; font-size: 17px; letter-spacing: .01em; white-space: nowrap; }
+.brand span { font-size: 12px; color: var(--faint); white-space: nowrap; }
+.now { flex: 1; min-width: 180px; font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.now em { font-style: normal; color: var(--text); font-weight: 500; }
+.controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: var(--r-sm); border: 1px solid var(--line-2); background: var(--surface); cursor: pointer; font-size: 13px; font-weight: 500; }
+.btn:hover { border-color: var(--accent); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.icon { width: 32px; padding: 0; justify-content: center; }
+.btn svg { width: 14px; height: 14px; fill: currentColor; }
+.seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: var(--r-sm); overflow: hidden; height: 32px; }
+.seg button { border: 0; background: transparent; padding: 0 10px; cursor: pointer; font-size: 12px; color: var(--muted); font-family: var(--mono); }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--text); }
+.progress { height: 2px; background: var(--line); }
+.progress i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .4s ease; }
+
+/* Main layout */
+.layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); min-height: calc(100vh - 56px); }
+.layout > * { min-width: 0; }
+.rail { border-right: 1px solid var(--line); background: var(--sunk); padding-block: 18px; padding-inline: 16px; display: flex; flex-direction: column; gap: 22px; }
+.rail h3 { margin: 0 0 8px; font: 600 11px/1 var(--body); letter-spacing: .09em; text-transform: uppercase; color: var(--faint); }
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.step { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; width: 100%; text-align: left; padding: 8px 8px; border: 0; border-radius: var(--r-sm); background: transparent; cursor: pointer; }
+.step:hover { background: var(--raised); }
+.step .dot { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line-2); display: grid; place-items: center; font: 500 11px var(--mono); color: var(--faint); margin-top: 1px; }
+.step.done .dot { border-color: var(--good); color: var(--good); }
+.step.cur { background: var(--accent-soft); }
+.step.cur .dot { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+.step .t { font-size: 13px; font-weight: 500; line-height: 1.3; }
+.step .s { font-size: 11px; color: var(--faint); margin-top: 2px; display: flex; gap: 4px; flex-wrap: wrap; }
+.step.cur .t { color: var(--text); }
+.tpl { font: 500 10.5px/1 var(--mono); padding: 3px 5px; border-radius: 3px; background: var(--raised); border: 1px solid var(--line); color: var(--muted); }
+.step.cur .tpl { border-color: var(--accent); color: var(--text); }
+.group-label { font: 600 10.5px/1 var(--body); letter-spacing: .09em; text-transform: uppercase; color: var(--faint); padding: 12px 8px 4px; }
+.ledger { display: grid; grid-template-columns: 1fr auto; gap: 3px 12px; font-size: 12px; }
+.ledger .k { font-family: var(--mono); color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
+.ledger .v { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; color: var(--text); }
+.ledger .v.zero { color: var(--faint); }
+.ledger .v.flash { color: var(--accent); }
+.ledger .tot { border-top: 1px solid var(--line); padding-top: 5px; margin-top: 3px; }
+.rail-note { font-size: 11.5px; color: var(--faint); line-height: 1.45; }
+
+.stage { padding-block: 20px 60px; padding-inline: 28px; min-width: 0; }
+.flowbar { display: flex; align-items: stretch; gap: 0; margin-bottom: 22px; overflow-x: auto; padding-bottom: 2px; }
+.fnode { flex: 1 1 0; min-width: 118px; border: 1px solid var(--line); background: var(--surface); padding: 8px 10px; border-radius: var(--r-sm); transition: border-color .3s, background .3s; }
+.fnode .l { font: 600 10.5px/1 var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
+.fnode .v { font-size: 12.5px; margin-top: 5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fnode.on { border-color: var(--accent); background: var(--accent-soft); }
+.fnode.on .v { color: var(--text); }
+.farrow { flex: 0 0 22px; display: grid; place-items: center; color: var(--faint); }
+.farrow.on { color: var(--accent); }
+.farrow svg { width: 14px; height: 14px; fill: currentColor; }
+
+/* Stage content */
+.eyebrow { font: 600 11px/1 var(--body); letter-spacing: .09em; text-transform: uppercase; color: var(--accent); }
+.stage h1 { font-family: var(--display); font-stretch: 86%; font-weight: 750; font-size: clamp(24px, 2.6vw, 32px); line-height: 1.12; margin: 8px 0 8px; text-wrap: balance; letter-spacing: -.005em; }
+.lede { color: var(--muted); max-width: 70ch; margin: 0 0 20px; font-size: 14.5px; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-items: start; }
+.cols > * { min-width: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; min-width: 0; }
+.panel h4 { margin: 0 0 10px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
+.panel h4 small { font-weight: 400; color: var(--faint); font-size: 11.5px; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+
+.file { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.file .glyph { width: 30px; height: 36px; border-radius: 3px; border: 1px solid var(--line-2); position: relative; background: var(--raised); display: grid; place-items: end center; padding-bottom: 4px; font: 600 8px var(--mono); color: var(--muted); }
+.file .glyph::before { content: ""; position: absolute; top: -1px; right: -1px; width: 9px; height: 9px; background: var(--bg); border-left: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); }
+.file .glyph.xlsx { color: var(--good); } .file .glyph.csv { color: var(--info); } .file .glyph.pdf { color: var(--bad); } .file .glyph.docx { color: var(--c1); }
+.file .fn { font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
+.file .meta { font-size: 11.5px; color: var(--faint); margin-top: 2px; }
+.file .bar { grid-column: 2 / 4; height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.file .bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s linear; }
+.file .state { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+.file .state.ok { color: var(--good); }
+
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.tablewrap.scroll { max-height: 340px; overflow-y: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th { text-align: left; font: 600 10.5px/1.2 var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--faint); padding: 9px 10px; border-bottom: 1px solid var(--line); background: var(--raised); position: sticky; top: 0; z-index: 1; white-space: nowrap; }
+td { padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+td.mono, td .mono { font-size: 12px; white-space: nowrap; }
+tr.rej td { background: var(--bad-soft); }
+tr.new td { animation: rowin .35s ease both; }
+@keyframes rowin { from { opacity: .2; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+tr.click { cursor: pointer; }
+tr.click:hover td { background: var(--accent-soft); }
+
+.pill { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 99px; font-size: 11px; font-weight: 500; line-height: 18px; white-space: nowrap; border: 1px solid transparent; }
+.p-good { background: var(--good-soft); color: var(--good); }
+.p-warn { background: var(--warn-soft); color: var(--warn); }
+.p-bad { background: var(--bad-soft); color: var(--bad); }
+.p-info { background: var(--info-soft); color: var(--info); }
+.p-acc { background: var(--accent-soft); color: var(--accent); }
+.p-mute { background: var(--raised); color: var(--muted); border-color: var(--line); }
+.sev { display: inline-block; width: 3px; align-self: stretch; border-radius: 2px; }
+
+.tally { display: flex; gap: 10px; flex-wrap: wrap; }
+.tally .t { border: 1px solid var(--line); border-radius: var(--r-sm); padding: 8px 12px; min-width: 96px; background: var(--surface); }
+.tally .t b { display: block; font: 600 20px/1.1 var(--mono); font-variant-numeric: tabular-nums; }
+.tally .t span { font-size: 11.5px; color: var(--muted); }
+.tally .t.bad b { color: var(--bad); } .tally .t.warn b { color: var(--warn); } .tally .t.good b { color: var(--good); } .tally .t.acc b { color: var(--accent); }
+.note { font-size: 12.5px; color: var(--muted); border-left: 2px solid var(--line-2); padding: 2px 0 2px 12px; margin: 0; max-width: 72ch; }
+.note b { color: var(--text); font-weight: 600; }
+.errline { font: 12px/1.45 var(--mono); color: var(--bad); background: var(--bad-soft); border-radius: var(--r-sm); padding: 8px 10px; overflow-wrap: anywhere; }
+
+/* Overview diagram */
+.ov { display: grid; gap: 10px; }
+.ov-row { display: grid; gap: 10px; }
+.ov-ch { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.ov-proc { grid-template-columns: 3fr 1fr; }
+.ov-out { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ovb { border: 1px solid var(--line); background: var(--surface); border-radius: var(--r); padding: 10px 12px; min-width: 0; }
+.ovb .n { font-weight: 600; font-size: 13px; }
+.ovb .st { font-size: 11px; color: var(--faint); margin: 1px 0 6px; }
+.ovb ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.ovb li { font-size: 12px; display: flex; gap: 6px; align-items: baseline; }
+.ovb li .tpl { flex: none; }
+.ovb.db { background: var(--accent-soft); border-color: var(--accent); text-align: center; }
+.ovb.center { text-align: center; }
+.ovb .sub { font-size: 12px; color: var(--muted); }
+.ov-arrow { display: flex; justify-content: space-around; color: var(--faint); height: 14px; }
+.ov-arrow svg { width: 14px; height: 14px; fill: currentColor; }
+
+/* Extraction cards */
+.cand { display: grid; grid-template-columns: 3px 1fr auto; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); align-items: start; transition: opacity .3s, border-color .3s; }
+.cand .ttl { font-weight: 600; font-size: 13px; }
+.cand .ds { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.cand .acts { display: flex; gap: 6px; align-items: center; }
+.cand.ok { border-color: var(--good); }
+.cand.drop { opacity: .45; }
+.cand .mini { height: 26px; padding: 0 9px; font-size: 12px; }
+.checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.checklist li { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 5px 8px; border-radius: var(--r-sm); }
+.checklist li .mk { width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; border: 1px solid var(--line-2); color: var(--faint); flex: none; }
+.checklist li.ok .mk { border-color: var(--good); color: var(--good); }
+.checklist li.miss { background: var(--bad-soft); }
+.checklist li.miss .mk { border-color: var(--bad); color: var(--bad); }
+.thinking { display: inline-flex; gap: 6px; align-items: center; font-size: 12.5px; color: var(--muted); }
+.thinking i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1s ease-in-out infinite; }
+.thinking i:nth-child(2) { animation-delay: .15s; } .thinking i:nth-child(3) { animation-delay: .3s; }
+@keyframes pulse { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+
+/* Rules engine */
+.rules { display: grid; gap: 8px; }
+.rule { display: grid; grid-template-columns: 44px minmax(0, 1fr) minmax(0, 1.4fr); gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.rule .id { font: 600 12px var(--mono); color: var(--accent); }
+.rule .nm { font-size: 13px; font-weight: 500; }
+.rule .nm small { display: block; color: var(--faint); font-weight: 400; font-size: 11.5px; }
+.rule .out { font-size: 12.5px; color: var(--muted); }
+.rule .out b { color: var(--text); font-weight: 600; }
+.rule .pbar { height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; margin-top: 6px; }
+.rule .pbar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .5s ease; }
+.rule.done .pbar i { background: var(--good); }
+.cta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 18px; padding: 14px 16px; border: 1px dashed var(--accent); border-radius: var(--r); background: var(--accent-soft); }
+.cta p { margin: 0; flex: 1; min-width: 220px; font-size: 13px; color: var(--muted); }
+.cta .btn { height: 38px; padding: 0 18px; font-size: 14px; }
+.cta .btn.go { animation: glow 1.2s ease-in-out infinite; }
+@keyframes glow { 0%, 100% { box-shadow: 0 0 0 0 var(--accent-soft); } 50% { box-shadow: 0 0 0 6px var(--accent-soft); } }
+
+/* Dashboard */
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin-bottom: 16px; overflow-x: auto; }
+.tabs button { border: 0; background: transparent; padding: 10px 14px; cursor: pointer; font-size: 13px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; min-width: 0; }
+.kpi .l { font: 600 10.5px/1.2 var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
+.kpi .v { font: 600 28px/1.1 var(--mono); font-variant-numeric: tabular-nums; margin-top: 6px; letter-spacing: -.02em; }
+.kpi .s { font-size: 12px; margin-top: 3px; }
+.kpi .d { font-size: 11px; color: var(--faint); margin-top: 6px; line-height: 1.4; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 12px; margin-bottom: 12px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 12px; margin-bottom: 12px; }
+.grid3 > *, .grid2 > * { min-width: 0; }
+.cap { font-size: 11.5px; color: var(--faint); margin: -6px 0 10px; }
+.donutwrap { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.donut { width: 118px; height: 118px; flex: none; }
+.legend { display: grid; gap: 6px; flex: 1; min-width: 140px; }
+.legend .row { display: grid; grid-template-columns: 10px 1fr auto auto; gap: 8px; align-items: center; font-size: 12.5px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 2px; }
+.legend .ct { font-family: var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.legend .pc { font: 600 13px var(--mono); font-variant-numeric: tabular-nums; min-width: 42px; text-align: right; }
+.bars { display: grid; gap: 7px; }
+.brow { display: grid; grid-template-columns: minmax(90px, 128px) 1fr 44px; gap: 10px; align-items: center; font-size: 12.5px; }
+.brow .nm { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.brow .tr { height: 12px; background: var(--raised); border-radius: 2px; overflow: hidden; display: flex; }
+.brow .tr i { display: block; height: 100%; }
+.brow .vl { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+.pipe { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; align-items: end; height: 150px; }
+.pipe .c { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-end; height: 100%; min-width: 0; }
+.pipe .c .b { background: var(--accent); opacity: .75; border-radius: 3px 3px 0 0; min-height: 3px; }
+.pipe .c.rv .b { background: var(--warn); opacity: 1; }
+.pipe .c .n { font: 600 12px var(--mono); text-align: center; margin-bottom: 3px; }
+.pipe-l { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; margin-top: 6px; }
+.pipe-l span { font-size: 10.5px; color: var(--faint); text-align: center; line-height: 1.2; overflow-wrap: anywhere; }
+.insights { display: grid; gap: 6px; }
+.ins { display: grid; grid-template-columns: 3px 1fr; gap: 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); font-size: 12.5px; }
+.ins .m { color: var(--faint); font-size: 11px; margin-top: 2px; }
+.idlink { font-family: var(--mono); color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; font-size: inherit; text-decoration: underline; text-decoration-color: var(--accent-soft); text-underline-offset: 2px; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.filters .lab { font-size: 11.5px; color: var(--faint); margin-right: 2px; }
+.chip { height: 28px; padding: 0 10px; border-radius: 99px; border: 1px solid var(--line-2); background: var(--surface); cursor: pointer; font-size: 12px; color: var(--muted); }
+.chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--text); }
+.board { display: grid; grid-template-columns: repeat(8, minmax(128px, 1fr)); gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 14px; }
+.lane { background: var(--sunk); border: 1px solid var(--line); border-radius: var(--r); padding: 6px; min-width: 0; }
+.lane .lh { font: 600 10.5px/1.2 var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 4px 4px 6px; display: flex; justify-content: space-between; gap: 4px; }
+.lane .lh b { font-family: var(--mono); color: var(--text); }
+.lane.rv .lh { color: var(--warn); }
+.mcard { display: block; width: 100%; text-align: left; border: 1px solid var(--line); border-left: 3px solid var(--faint); background: var(--surface); border-radius: var(--r-sm); padding: 6px 8px; margin-bottom: 5px; cursor: pointer; }
+.mcard:hover { border-color: var(--accent); }
+.mcard .i { font: 600 11px var(--mono); }
+.mcard .nm { font-size: 11px; color: var(--muted); line-height: 1.3; margin-top: 1px; overflow-wrap: anywhere; }
+.mcard .bd { margin-top: 4px; display: flex; gap: 4px; flex-wrap: wrap; }
+.more { font-size: 11px; color: var(--faint); text-align: center; padding: 4px; }
+
+/* Model 360 */
+.m360 { border: 1px solid var(--accent); border-radius: var(--r); background: var(--surface); padding: 16px; margin-bottom: 16px; animation: rowin .3s ease both; }
+.m360-h { display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+.m360-h h2 { font-family: var(--display); font-stretch: 88%; font-weight: 750; font-size: 22px; margin: 4px 0 2px; }
+.m360-h .ds { color: var(--muted); font-size: 13px; max-width: 70ch; }
+.badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.ring { display: flex; align-items: center; gap: 10px; }
+.ring svg { width: 64px; height: 64px; }
+.meta { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; font-size: 12px; }
+.meta span { border: 1px solid var(--line); border-radius: var(--r-sm); padding: 3px 8px; color: var(--muted); }
+.meta span b { color: var(--text); font-weight: 500; }
+.stepper { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; margin: 6px 0 16px; }
+.stepper div { font-size: 10px; color: var(--faint); text-align: center; line-height: 1.2; overflow-wrap: anywhere; }
+.stepper div::before { content: ""; display: block; height: 5px; border-radius: 3px; background: var(--line); margin-bottom: 5px; }
+.stepper .d::before { background: var(--good); } .stepper .d { color: var(--good); }
+.stepper .a::before { background: var(--accent); } .stepper .a { color: var(--accent); font-weight: 600; }
+.bt { display: grid; gap: 3px; }
+.bt-row { display: grid; grid-template-columns: minmax(110px, 1.6fr) repeat(4, minmax(46px, 1fr)); gap: 4px; align-items: center; font-size: 12px; }
+.bt-row .h { font: 600 10px var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--faint); text-align: center; }
+.bt-row .cell { height: 22px; border-radius: 3px; display: grid; place-items: center; font: 500 10.5px var(--mono); }
+.comp { display: grid; gap: 6px; }
+.comp .brow { grid-template-columns: minmax(96px, 150px) 1fr 40px; }
+.chart svg { width: 100%; height: auto; display: block; }
+.ax { stroke: var(--line-2); stroke-width: 1; }
+.gridl { stroke: var(--line); stroke-width: 1; }
+.axt { fill: var(--faint); font: 10px var(--mono); }
+.axl { fill: var(--muted); font: 11px var(--body); }
+
+/* Report */
+.gen-steps { display: grid; gap: 6px; margin-bottom: 16px; max-width: 520px; }
+.gen-steps div { display: flex; gap: 10px; align-items: center; font-size: 13px; color: var(--faint); }
+.gen-steps div.ok { color: var(--text); }
+.gen-steps div.ok::before { content: "✓"; color: var(--good); font-weight: 700; width: 14px; }
+.gen-steps div:not(.ok)::before { content: "·"; width: 14px; text-align: center; }
+.report { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: clamp(18px, 3vw, 36px); max-width: 920px; }
+.report .rh { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-bottom: 2px solid var(--text); padding-bottom: 12px; margin-bottom: 18px; }
+.report .rh h2 { font-family: var(--display); font-stretch: 84%; font-weight: 800; font-size: clamp(22px, 2.6vw, 30px); margin: 4px 0 0; line-height: 1.1; }
+.report .rh .ref { font: 12px/1.6 var(--mono); color: var(--muted); text-align: right; }
+.report h3 { font-family: var(--display); font-stretch: 90%; font-weight: 700; font-size: 16px; margin: 24px 0 8px; display: flex; gap: 10px; align-items: baseline; }
+.report h3 .no { font: 600 12px var(--mono); color: var(--accent); }
+.report p { margin: 0 0 10px; max-width: 72ch; }
+.report ul.sum { margin: 0; padding-left: 18px; display: grid; gap: 4px; max-width: 76ch; }
+.report .commentary { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 10px 14px; border-radius: 0 var(--r-sm) var(--r-sm) 0; font-size: 13.5px; white-space: pre-wrap; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
+.status-line { font-size: 12.5px; color: var(--muted); }
+
+/* Copilot */
+.chat { display: grid; grid-template-rows: minmax(0, 1fr) auto; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); height: min(640px, 72vh); min-height: 420px; }
+.msgs { overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: min(760px, 92%); font-size: 13.5px; line-height: 1.55; }
+.msg.u { align-self: flex-end; background: var(--accent); color: var(--accent-ink); padding: 8px 12px; border-radius: 12px 12px 3px 12px; }
+.msg.a { align-self: flex-start; }
+.msg.a .body { background: var(--raised); border: 1px solid var(--line); padding: 10px 14px; border-radius: 12px 12px 12px 3px; overflow-wrap: anywhere; }
+.msg.a .body p { margin: 0 0 6px; } .msg.a .body p:last-child { margin: 0; }
+.msg.a .body ul { margin: 4px 0 6px; padding-left: 18px; }
+.msg .src { font-size: 11px; color: var(--faint); margin-top: 5px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.composer { border-top: 1px solid var(--line); padding: 10px 12px; display: grid; gap: 8px; }
+.sugs { display: flex; gap: 6px; flex-wrap: wrap; }
+.sugs button { font-size: 12px; border: 1px solid var(--line-2); background: var(--surface); border-radius: 99px; padding: 4px 10px; cursor: pointer; color: var(--muted); }
+.sugs button:hover { border-color: var(--accent); color: var(--text); }
+.inrow { display: flex; gap: 8px; }
+.inrow input { flex: 1; min-width: 0; height: 38px; border-radius: var(--r-sm); border: 1px solid var(--line-2); background: var(--bg); color: var(--text); padding: 0 12px; font: inherit; font-size: 13.5px; }
+.inrow input:focus { outline: none; border-color: var(--accent); }
+.mode { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+.switch { position: relative; width: 32px; height: 18px; border-radius: 9px; background: var(--line-2); border: 0; cursor: pointer; flex: none; }
+.switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--surface); transition: transform .2s; }
+.switch[aria-checked="true"] { background: var(--accent); }
+.switch[aria-checked="true"]::after { transform: translateX(14px); }
+.done-card { margin-top: 16px; padding: 14px 16px; border: 1px solid var(--good); border-radius: var(--r); background: var(--good-soft); font-size: 13px; }
+
+@media (max-width: 980px) {
+  .layout { grid-template-columns: 1fr; }
+  .rail { border-right: 0; border-bottom: 1px solid var(--line); padding-block: 12px; }
+  .steps { flex-direction: row; overflow-x: auto; gap: 4px; padding-bottom: 4px; }
+  .steps li { flex: 0 0 200px; }
+  .group-label { display: none; }
+  .ledger { grid-template-columns: 1fr auto 1fr auto; column-gap: 14px; }
+  .stage { padding-inline: 16px; }
+  .ov-ch { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ov-proc, .ov-out { grid-template-columns: 1fr; }
+  .rule { grid-template-columns: 40px 1fr; }
+  .rule .out { grid-column: 1 / -1; }
+}
+@media (max-width: 520px) {
+  .rail-note, .ledger-wrap { display: none; }
+  .topbar-in { padding: 8px 16px; gap: 8px; }
+  .brand span { display: none; }
+  .now { order: 3; flex-basis: 100%; }
+  .pipe-l span { font-size: 9px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand"><b>MRM Governance MIS</b><span>Initial build walkthrough · synthetic data</span></div>
+    <div class="now" id="now" aria-live="polite"></div>
+    <div class="controls">
+      <button class="btn icon" id="bRestart" aria-label="Restart walkthrough" title="Restart"><svg viewBox="0 0 16 16"><path d="M8 2a6 6 0 1 1-5.66 8h1.6A4.5 4.5 0 1 0 4.4 4.4L6 6H1V1l1.34 1.34A6 6 0 0 1 8 2z"/></svg></button>
+      <button class="btn icon" id="bBack" aria-label="Previous step" title="Previous step"><svg viewBox="0 0 16 16"><path d="M10.5 2 4.5 8l6 6 1.4-1.4L7.3 8l4.6-4.6z"/></svg></button>
+      <button class="btn primary" id="bPlay" aria-label="Play walkthrough"><svg viewBox="0 0 16 16" id="playIcon"><path d="M4 2.5v11l9-5.5z"/></svg><span id="playLabel">Play</span></button>
+      <button class="btn icon" id="bNext" aria-label="Next step" title="Next step"><svg viewBox="0 0 16 16"><path d="M5.5 2 4.1 3.4 8.7 8l-4.6 4.6L5.5 14l6-6z"/></svg></button>
+      <div class="seg" role="group" aria-label="Playback speed">
+        <button data-speed="1" aria-pressed="true">1×</button><button data-speed="2" aria-pressed="false">2×</button><button data-speed="4" aria-pressed="false">4×</button>
+      </div>
+    </div>
+  </div>
+  <div class="progress"><i id="prog"></i></div>
+</div>
+
+<div class="layout">
+  <aside class="rail">
+    <div>
+      <h3>The flow</h3>
+      <ol class="steps" id="steps"></ol>
+    </div>
+    <div class="ledger-wrap">
+      <h3>Governance database · rows</h3>
+      <div class="ledger" id="ledger"></div>
+    </div>
+    <p class="rail-note">Every screen in this walkthrough reads from these tables. Nothing on the dashboards is typed in; each figure is counted or calculated from the loaded templates.</p>
+  </aside>
+  <main class="stage">
+    <div class="flowbar" id="flowbar" aria-label="Where this step sits in the flow"></div>
+    <div id="stage"></div>
+  </main>
+</div>
+
+<script>
+/* ===== Synthetic data engine: every figure on screen is computed from these records ===== */
+const DAY = 864e5;
+const TODAY = (() => { const d = new Date(); d.setHours(12, 0, 0, 0); return d; })();
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const rnd = mulberry32(20260929);
+const ri = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+const pick = arr => arr[Math.floor(rnd() * arr.length)];
+function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+const iso = d => { const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), dd = String(d.getDate()).padStart(2, '0'); return `${y}-${m}-${dd}`; };
+const addDays = (d, n) => new Date(d.getTime() + n * DAY);
+function addMonths(d, n) { const r = new Date(d.getTime()); const day = r.getDate(); r.setDate(1); r.setMonth(r.getMonth() + n); const last = new Date(r.getFullYear(), r.getMonth() + 1, 0).getDate(); r.setDate(Math.min(day, last)); return r; }
+const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d, 12); };
+const daysBetween = (a, b) => Math.round((b - a) / DAY);
+
+const PHASES = ['Initiation', 'Development', 'Validation', 'Implementation', 'Monitoring', 'Reg/Audit', 'Retirement'];
+const COLUMNS = ['Initiation', 'Development', 'Validation', 'Implementation', 'Monitoring', 'Revalidation', 'Reg/Audit', 'Retirement'];
+const TYPES = ['Credit Risk', 'Provisioning', 'Balance Sheet', 'Forecasting', 'CCAR/Stress Testing'];
+const FREQ_MONTHS = { Monthly: 1, Quarterly: 3, 'Semi-annual': 6, Annual: 12, Biennial: 24 };
+
+/* ---------- T12 policy ---------- */
+const POLICY = [
+  ['tier_high_min', '10', 'integer', 'R1'], ['tier_medium_min', '7', 'integer', 'R1'],
+  ['reval_lead_days', '60', 'integer', 'R3'], ['due_soon_days', '30', 'integer', 'R4'],
+  ['validation_sla_days_high', '45', 'integer', 'R9'], ['validation_sla_days_medium', '60', 'integer', 'R9'], ['validation_sla_days_low', '90', 'integer', 'R9'],
+  ['weight_documentation', '25', 'percent', 'R8'], ['weight_validation_currency', '25', 'percent', 'R8'], ['weight_issue_remediation', '20', 'percent', 'R8'],
+  ['weight_mrc_compliance', '15', 'percent', 'R8'], ['weight_monitoring', '15', 'percent', 'R8'],
+  ['required_docs_development', 'ToR', 'list', 'R8'], ['required_docs_validation', 'ToR; MDD', 'list', 'R8'], ['required_docs_production', 'ToR; MDD; Validation report', 'list', 'R8'],
+  ['mdd_required_sections', 'Purpose and use; Data; Methodology; Assumptions; Limitations; Testing and performance; Implementation; Monitoring plan', 'list', 'R8'],
+  ['dq_default_pass_pct', '98', 'percent', 'R7'], ['dq_default_warn_pct', '95', 'percent', 'R7']
+].map(([key, value, type, rule]) => ({ key, value, type, rule }));
+const POL = Object.fromEntries(POLICY.map(p => [p.key, p.value]));
+
+/* ---------- T01 users ---------- */
+const USER_DEF = [
+  ['E. Novak', 'Admin', 'Model Risk Management'], ['R. Alvarez', 'MRC Member', 'Enterprise Risk'], ['S. Idowu', 'Auditor', 'Internal Audit'], ['M. Castell', 'Executive', 'Enterprise Risk'],
+  ['J. Chen', 'Model Owner', 'Commercial Banking'], ['A. Williams', 'Model Owner', 'Retail Banking'], ['D. Park', 'Model Owner', 'Commercial Banking'], ['B. Foster', 'Model Owner', 'Enterprise Risk'],
+  ['N. Ahmed', 'Model Owner', 'International'], ['R. Stevens', 'Model Owner', 'Treasury'], ['G. Hoffman', 'Model Owner', 'Treasury'], ['L. Kim', 'Model Owner', 'Finance'],
+  ['M. Taylor', 'Model Owner', 'Finance'], ['F. Johnson', 'Model Owner', 'Enterprise Risk'], ['V. Petrov', 'Model Owner', 'Enterprise Risk'], ['T. Fischer', 'Model Owner', 'Capital Markets'],
+  ['R. Kumar', 'Model Developer', 'Model Development'], ['T. Nguyen', 'Model Developer', 'Model Development'], ['K. Sharma', 'Model Developer', 'Model Development'], ['J. Lee', 'Model Developer', 'Model Development'],
+  ['Y. Tanaka', 'Model Developer', 'Model Development'], ['H. Muller', 'Model Developer', 'Model Development'], ['A. Costa', 'Model Developer', 'Model Development'], ['S. Nakamura', 'Model Developer', 'Model Development'],
+  ['W. Zhang', 'Model Developer', 'Model Development'], ['B. Gupta', 'Model Developer', 'Model Development'], ['C. Okafor', 'Model Developer', 'Model Development'], ['M. Rossi', 'Model Developer', 'Model Development'],
+  ['P. Johansson', 'Model Developer', 'Model Development'],
+  ['S. Patel', 'Validator', 'Model Validation'], ['M. Garcia', 'Validator', 'Model Validation'], ['L. Thompson', 'Validator', 'Model Validation'], ['C. Martinez', 'Validator', 'Model Validation'],
+  ["P. O'Brien", 'Validator', 'Model Validation'], ['E. Wong', 'Validator', 'Model Validation'], ['T. Raj', 'Validator', 'Model Validation'], ['D. Brown', 'Validator', 'Model Validation'],
+  ['J. Fernandez', 'Validator', 'Model Validation'], ['K. Ivanova', 'Validator', 'Model Validation'], ['A. Dubois', 'Validator', 'Model Validation'],
+  ['O. Mensah', 'MRC Member', 'Finance'], ['H. Lindqvist', 'MRC Member', 'Treasury']
+];
+const USERS = USER_DEF.map(([name, role, bl], i) => ({ id: 'U-' + String(i + 1).padStart(3, '0'), name, role, bizLine: bl, email: name.replace(/[^A-Za-z]/g, '').toLowerCase() + '@demo-bank.example' }));
+const UBY = Object.fromEntries(USERS.map(u => [u.name, u.id]));
+const uname = id => (USERS.find(u => u.id === id) || { name: id }).name;
+const byRole = r => USERS.filter(u => u.role === r).map(u => u.id);
+
+/* ---------- T02 model inventory ---------- */
+const SUBTYPES = { 'Credit Risk': ['PD', 'LGD', 'EAD', 'Scorecard', 'Rating', 'Collections'], 'Provisioning': ['CECL', 'IFRS 9', 'Q-factor', 'Reserve allocation'], 'Balance Sheet': ['ALM/IRR', 'Liquidity', 'Deposit', 'Prepayment', 'Funds transfer pricing'], 'Forecasting': ['Revenue', 'Expense', 'Balance', 'Volume', 'Climate'], 'CCAR/Stress Testing': ['PPNR', 'Loss', 'Capital', 'RWA', 'Scenario'] };
+const SEGMENTS = { 'Credit Risk': ['Commercial & Industrial', 'CRE Office', 'Residential Mortgage', 'Auto Loan', 'Credit Card', 'Small Business', 'HELOC', 'Wealth Lending', 'Dealer Floorplan', 'Student Lending'], 'Provisioning': ['Commercial', 'Consumer', 'Securities', 'CRE', 'Card', 'International'], 'Balance Sheet': ['Non-maturity Deposit', 'Treasury', 'Mortgage', 'Wholesale Funding', 'Securities Portfolio'], 'Forecasting': ['Net Interest Income', 'Fee Income', 'Operating Expense', 'Loan Volume', 'Deposit Volume', 'Branch'], 'CCAR/Stress Testing': ['Enterprise', 'CRE', 'Consumer', 'Trading Book', 'Operational'] };
+const BIZ = { 'Credit Risk': ['Commercial Banking', 'Retail Banking', 'Business Banking', 'Wealth Management'], 'Provisioning': ['Enterprise Risk', 'Finance', 'International'], 'Balance Sheet': ['Treasury'], 'Forecasting': ['Finance', 'Retail Banking', 'Enterprise Risk'], 'CCAR/Stress Testing': ['Enterprise Risk'] };
+
+const HEROES = [
+  { id: 'M-0012', name: 'Wholesale PD Model', type: 'Credit Risk', sub: 'PD', tier: 'High', phase: 'Monitoring', owner: 'J. Chen', dev: 'R. Kumar', val: 'S. Patel', biz: 'Commercial Banking', ver: 'v3.1', freq: 'Annual', due: 198, purpose: 'Estimates 12-month probability of default for wholesale commercial exposures from financial statements, market signals and behaviour.' },
+  { id: 'M-0015', name: 'Retail LGD Model', type: 'Credit Risk', sub: 'LGD', tier: 'High', phase: 'Monitoring', owner: 'A. Williams', dev: 'T. Nguyen', val: 'M. Garcia', biz: 'Retail Banking', ver: 'v2.4', freq: 'Annual', due: -24, purpose: 'Loss given default for retail mortgage and unsecured portfolios, using collateral values and recovery timelines.' },
+  { id: 'M-0023', name: 'EAD Facility Model', type: 'Credit Risk', sub: 'EAD', tier: 'Medium', phase: 'Monitoring', owner: 'D. Park', dev: 'K. Sharma', val: 'L. Thompson', biz: 'Commercial Banking', ver: 'v1.3', freq: 'Annual', due: 188, purpose: 'Exposure at default for revolving facilities and committed lines through credit conversion factors.' },
+  { id: 'M-0031', name: 'CECL Lifetime ECL', type: 'Provisioning', sub: 'CECL', tier: 'High', phase: 'Reg/Audit', owner: 'B. Foster', dev: 'J. Lee', val: 'C. Martinez', biz: 'Enterprise Risk', ver: 'v4.0', freq: 'Annual', due: 104, purpose: 'Lifetime expected credit loss across commercial, retail and securities portfolios with weighted macroeconomic scenarios.' },
+  { id: 'M-0038', name: 'IFRS 9 Stage Allocation', type: 'Provisioning', sub: 'IFRS 9', tier: 'High', phase: 'Reg/Audit', owner: 'N. Ahmed', dev: 'Y. Tanaka', val: "P. O'Brien", biz: 'International', ver: 'v2.2', freq: 'Annual', due: 63, purpose: 'Significant-increase-in-credit-risk staging and forward-looking ECL for the international book.' },
+  { id: 'M-0042', name: 'ALM Interest Rate Risk', type: 'Balance Sheet', sub: 'ALM/IRR', tier: 'High', phase: 'Monitoring', owner: 'R. Stevens', dev: 'H. Muller', val: 'E. Wong', biz: 'Treasury', ver: 'v3.0', freq: 'Annual', due: -52, purpose: 'Net interest income sensitivity and economic value of equity under parallel and non-parallel rate shocks.' },
+  { id: 'M-0048', name: 'Liquidity Stress Model', type: 'Balance Sheet', sub: 'Liquidity', tier: 'High', phase: 'Monitoring', owner: 'G. Hoffman', dev: 'A. Costa', val: 'T. Raj', biz: 'Treasury', ver: 'v2.1', freq: 'Semi-annual', due: 17, purpose: 'LCR and NSFR projections under idiosyncratic and market-wide stress.' },
+  { id: 'M-0055', name: 'Revenue Forecasting Model', type: 'Forecasting', sub: 'Revenue', tier: 'Medium', phase: 'Monitoring', owner: 'L. Kim', dev: 'S. Nakamura', val: 'D. Brown', biz: 'Finance', ver: 'v2.0', freq: 'Annual', due: 88, purpose: 'Multi-factor revenue projection for financial planning cycles.' },
+  { id: 'M-0061', name: 'Expense Projection Model', type: 'Forecasting', sub: 'Expense', tier: 'Low', phase: 'Monitoring', owner: 'M. Taylor', dev: 'W. Zhang', val: 'J. Fernandez', biz: 'Finance', ver: 'v1.5', freq: 'Biennial', due: 441, purpose: 'Bottom-up expense forecast from cost-centre projections, inflation and headcount plans.' },
+  { id: 'M-0071', name: 'CCAR PPNR Model', type: 'CCAR/Stress Testing', sub: 'PPNR', tier: 'High', phase: 'Implementation', owner: 'F. Johnson', dev: 'B. Gupta', val: 'K. Ivanova', biz: 'Enterprise Risk', ver: 'v5.0', freq: 'Annual', due: null, purpose: 'Pre-provision net revenue under baseline, adverse and severely adverse supervisory scenarios.' },
+  { id: 'M-0076', name: 'CCAR Loss Forecasting', type: 'CCAR/Stress Testing', sub: 'Loss', tier: 'High', phase: 'Validation', owner: 'V. Petrov', dev: 'C. Okafor', val: 'A. Dubois', biz: 'Enterprise Risk', ver: 'v4.2', freq: null, due: null, purpose: 'Net charge-offs and provision expense under stress scenarios across major portfolios.' },
+  { id: 'M-0078', name: 'CCAR Capital Adequacy', type: 'CCAR/Stress Testing', sub: 'Capital', tier: 'High', phase: 'Validation', owner: 'J. Chen', dev: 'R. Kumar', val: 'J. Chen', legacyConflict: true, biz: 'Enterprise Risk', ver: 'v3.5', freq: null, due: null, purpose: 'CET1 ratio projection combining RWA dynamics, loss absorption and planned capital actions.' },
+  { id: 'M-0082', name: 'Market Risk VaR', type: 'Credit Risk', sub: 'VaR', tier: 'High', phase: 'Development', owner: 'T. Fischer', dev: 'M. Rossi', val: null, biz: 'Capital Markets', ver: 'v1.0-draft', freq: null, due: null, purpose: 'Historical simulation VaR with expected shortfall for the trading book.', docGap: true },
+  { id: 'M-0085', name: 'Behavioral Scorecard v2', type: 'Credit Risk', sub: 'Scorecard', tier: 'Medium', phase: 'Development', owner: 'L. Kim', dev: 'P. Johansson', val: null, biz: 'Retail Banking', ver: 'v2.0-draft', freq: null, due: null, purpose: 'Behavioural score for existing retail customers from transaction patterns and bureau updates.' },
+  { id: 'M-0089', name: 'Climate Risk Transition', type: 'Forecasting', sub: 'Climate', tier: 'Medium', phase: 'Initiation', owner: 'N. Ahmed', dev: 'S. Nakamura', val: null, biz: 'Enterprise Risk', ver: 'v0.1', freq: null, due: null, purpose: 'Transition-risk exposure to carbon-intensive sectors under NGFS scenarios.' },
+  { id: 'M-0091', name: 'Deposit Pricing Model', type: 'Balance Sheet', sub: 'Deposit', tier: 'Low', phase: 'Initiation', owner: 'G. Hoffman', dev: 'A. Costa', val: null, biz: 'Treasury', ver: 'v0.1', freq: null, due: null, purpose: 'Non-maturity deposit pricing with rate sensitivity and balance elasticity.' },
+  { id: 'M-0003', name: 'Legacy PD Scorecard v1', type: 'Credit Risk', sub: 'PD', tier: 'Low', phase: 'Retirement', owner: 'J. Chen', dev: 'R. Kumar', val: 'S. Patel', biz: 'Retail Banking', ver: 'v1.0', freq: null, due: null, successor: 'M-0012', purpose: 'Original retail PD scorecard, replaced by M-0012 after a parallel run.' },
+  { id: 'M-0005', name: 'Basel II IRB Floor Model', type: 'Credit Risk', sub: 'Rating', tier: 'Low', phase: 'Retirement', owner: 'D. Park', dev: 'K. Sharma', val: 'L. Thompson', biz: 'Enterprise Risk', ver: 'v2.0', freq: null, due: null, purpose: 'IRB output floor calculation, retired after the Basel III.1 implementation.' },
+  { id: 'M-0008', name: 'Legacy ALCO NII Model', type: 'Balance Sheet', sub: 'ALM/IRR', tier: 'Low', phase: 'Retirement', owner: 'R. Stevens', dev: 'H. Muller', val: 'E. Wong', biz: 'Treasury', ver: 'v1.5', freq: null, due: null, successor: 'M-0042', purpose: 'First-generation NII sensitivity model, replaced by M-0042.' }
+];
+
+function answersFor(tier) {
+  const target = tier === 'High' ? ri(10, 12) : tier === 'Medium' ? ri(7, 9) : ri(4, 6);
+  const a = [1, 1, 1, 1]; let s = 4;
+  while (s < target) { const k = ri(0, 3); if (a[k] < 3) { a[k]++; s++; } }
+  return a;
+}
+function tierOf(a) { const s = a.reduce((x, y) => x + y, 0); return s >= +POL.tier_high_min ? 'High' : s >= +POL.tier_medium_min ? 'Medium' : 'Low'; }
+
+function buildModels() {
+  const pools = {
+    tier: [...Array(89).fill('High'), ...Array(106).fill('Medium'), ...Array(61).fill('Low')],
+    type: [...Array(78).fill('Credit Risk'), ...Array(42).fill('Provisioning'), ...Array(48).fill('Balance Sheet'), ...Array(52).fill('Forecasting'), ...Array(36).fill('CCAR/Stress Testing')],
+    phase: [...Array(6).fill('Initiation'), ...Array(14).fill('Development'), ...Array(18).fill('Validation'), ...Array(11).fill('Implementation'), ...Array(179).fill('Monitoring'), ...Array(14).fill('Reg/Audit'), ...Array(14).fill('Retirement')]
+  };
+  const take = (pool, v) => { const i = pools[pool].indexOf(v); pools[pool].splice(i, 1); };
+  HEROES.forEach(h => { take('tier', h.tier); take('type', h.type); take('phase', h.phase); });
+  shuffle(pools.tier); shuffle(pools.type); shuffle(pools.phase);
+  // CCAR models lean High
+  const heroIds = new Set(HEROES.map(h => h.id));
+  const models = [];
+  let n = 0;
+  for (let i = 1; i <= 256; i++) {
+    const id = 'M-' + String(i).padStart(4, '0');
+    if (heroIds.has(id)) continue;
+    const type = pools.type[n], phase = pools.phase[n];
+    let tier = pools.tier[n];
+    models.push({ id, type, phase, tier }); n++;
+  }
+  // nudge: swap tiers so CCAR/Provisioning skew High
+  models.forEach(m => { if ((m.type === 'CCAR/Stress Testing' || m.type === 'Provisioning') && m.tier !== 'High') { const o = models.find(x => x.tier === 'High' && (x.type === 'Forecasting' || x.type === 'Balance Sheet') && !x._sw); if (o && rnd() < 0.7) { o.tier = m.tier; m.tier = 'High'; o._sw = m._sw = true; } } });
+  const owners = byRole('Model Owner'), devs = byRole('Model Developer'), vals = byRole('Validator');
+  const used = new Set();
+  models.forEach(m => {
+    const sub = pick(SUBTYPES[m.type]);
+    let name, tries = 0;
+    do { name = `${pick(SEGMENTS[m.type])} ${sub} Model`; tries++; } while (used.has(name) && tries < 12);
+    if (used.has(name)) name = name.replace(' Model', ' Model II');
+    used.add(name);
+    Object.assign(m, { name, sub, biz: pick(BIZ[m.type]), owner: pick(owners), dev: pick(devs), ver: 'v' + ri(1, 4) + '.' + ri(0, 9) });
+    m.val = ['Initiation', 'Development'].includes(m.phase) ? null : pick(vals);
+    m.answers = answersFor(m.tier);
+  });
+  HEROES.forEach(h => {
+    models.push({ id: h.id, name: h.name, type: h.type, sub: h.sub, tier: h.tier, phase: h.phase, biz: h.biz, ver: h.ver, owner: UBY[h.owner], dev: UBY[h.dev], val: h.val ? UBY[h.val] : null, answers: answersFor(h.tier), hero: true, heroDue: h.due, heroFreq: h.freq, legacyConflict: !!h.legacyConflict, successor: h.successor || null, purpose: h.purpose, docGap: !!h.docGap });
+  });
+  models.sort((a, b) => a.id.localeCompare(b.id));
+  // Revalidation schedule for Monitoring and Reg/Audit models
+  const mon = models.filter(m => m.phase === 'Monitoring' && !m.hero);
+  shuffle(mon);
+  const offsets = [];
+  for (let i = 0; i < 6; i++) offsets.push(-ri(6, 58));   // overdue (heroes add 2)
+  for (let i = 0; i < 10; i++) offsets.push(ri(3, 27));    // due soon (hero M-0048 adds 1)
+  for (let i = 0; i < 12; i++) offsets.push(ri(33, 57));   // scheduled, inside lead time
+  mon.forEach((m, i) => { m._off = i < offsets.length ? offsets[i] : ri(66, 700); });
+  models.forEach(m => {
+    if (!['Monitoring', 'Reg/Audit'].includes(m.phase)) return;
+    const freq = m.hero ? (m.heroFreq || 'Annual') : (m.tier === 'High' ? pick(['Annual', 'Annual', 'Semi-annual']) : m.tier === 'Medium' ? 'Annual' : pick(['Annual', 'Biennial']));
+    let off = m.hero ? m.heroDue : (m.phase === 'Reg/Audit' ? ri(66, 330) : m._off);
+    const freqCap = FREQ_MONTHS[freq] * 28;
+    if (!m.hero && off > freqCap) off = freqCap > 70 ? ri(66, freqCap) : off;
+    let due = addDays(TODAY, off);
+    if (due.getDate() > 28) due = addDays(due, -(due.getDate() - 28));
+    const last = addMonths(due, -FREQ_MONTHS[freq]);
+    m.freq = freq; m.lastVal = iso(last); m.goLive = iso(addMonths(last, -ri(6, 30)));
+    delete m._off;
+  });
+  models.filter(m => m.phase === 'Implementation').forEach(m => { m.freq = 'Annual'; });
+  return models;
+}
+const SEED_MODELS = buildModels();
+
+/* Demo import file: 5 rows, M-0304 rejected under R5 */
+const DEMO_MODELS = [
+  { id: 'M-0301', name: 'SME Probability of Default', type: 'Credit Risk', sub: 'PD', biz: 'Business Banking', owner: UBY['D. Park'], dev: UBY['K. Sharma'], val: UBY['L. Thompson'], phase: 'Validation', ver: 'v1.0', answers: [3, 2, 3, 3], purpose: '12-month PD for small and medium business borrowers.' },
+  { id: 'M-0302', name: 'CRE Lifetime Loss', type: 'Provisioning', sub: 'CECL', biz: 'Commercial Real Estate', owner: UBY['B. Foster'], dev: UBY['J. Lee'], val: UBY['C. Martinez'], phase: 'Validation', ver: 'v2.0', answers: [3, 3, 2, 3], purpose: 'Lifetime loss for the commercial real estate book under CECL.' },
+  { id: 'M-0303', name: 'Card Fraud Scorecard', type: 'Credit Risk', sub: 'Scorecard', biz: 'Retail Banking', owner: UBY['A. Williams'], dev: UBY['T. Nguyen'], val: null, phase: 'Development', ver: 'v0.9', answers: [2, 2, 2, 1], purpose: 'Transaction-level fraud likelihood for consumer cards.' },
+  { id: 'M-0304', name: 'Branch Deposit Forecast', type: 'Forecasting', sub: 'Volume', biz: 'Retail Banking', owner: UBY['M. Taylor'], dev: UBY['W. Zhang'], val: UBY['M. Taylor'], phase: 'Validation', ver: 'v1.1', answers: [2, 1, 2, 1], purpose: 'Branch-level deposit volume forecast.' },
+  { id: 'M-0305', name: 'Mortgage Prepayment', type: 'Forecasting', sub: 'Balance', biz: 'Treasury', owner: UBY['R. Stevens'], dev: UBY['H. Muller'], val: null, phase: 'Initiation', ver: 'v0.1', answers: [2, 3, 2, 2], purpose: 'Conditional prepayment rates for the residential mortgage book.' }
+].map(m => ({ ...m, demo: true }));
+function r5(m) { return m.val && (m.val === m.owner || m.val === m.dev); }
+DEMO_MODELS.forEach(m => { m.tier = tierOf(m.answers); m.reject = r5(m) ? 'validator_id: Validator cannot be the model owner or developer (R5)' : null; });
+const MODELS = [...SEED_MODELS, ...DEMO_MODELS.filter(m => !m.reject)];
+SEED_MODELS.forEach(m => { if (!m.hero) m.tier = tierOf(m.answers); });
+const MBY = Object.fromEntries(MODELS.map(m => [m.id, m]));
+
+/* ---------- T03 validations ---------- */
+const VALIDATIONS = [];
+let vn = 400;
+MODELS.forEach(m => {
+  if (['Initiation', 'Development'].includes(m.phase)) return;
+  const k = m.phase === 'Validation' ? 1 : ri(1, 4);
+  for (let i = 0; i < k; i++) {
+    const inProgress = m.phase === 'Validation' && i === 0;
+    const end = m.lastVal ? addMonths(parse(m.lastVal), -12 * i) : addDays(TODAY, -ri(60, 900));
+    const start = addDays(end, -ri(35, 80));
+    VALIDATIONS.push({ id: 'V-' + String(++vn).padStart(4, '0'), model: m.id, type: i === k - 1 && !inProgress ? 'Initial' : inProgress ? (m.demo ? 'Initial' : 'Initial') : 'Periodic', validator: m.val || pick(byRole('Validator')), start: iso(inProgress ? addDays(TODAY, -ri(20, 70)) : start), end: inProgress ? null : iso(end), outcome: inProgress ? 'In progress' : (rnd() < 0.8 ? 'Approved' : 'Conditional') });
+  }
+});
+
+/* ---------- T04 findings ---------- */
+const HERO_FINDINGS = [
+  ['M-0012', 'CRE obligor data gap', 'Segment B data quality gap: 14% of obligor financial statements missing in construction lending.', 'Critical', 'Data', 'Open', -40],
+  ['M-0012', 'Macro overlay undocumented', 'Model documentation does not reflect the December parameter update to the macro overlay.', 'Medium', 'Documentation', 'Open', 45],
+  ['M-0015', 'LGD floor deviation', 'LGD floor methodology deviates from policy.', 'Medium', 'Methodology', 'Open', 20],
+  ['M-0015', 'Collateral valuation lag', 'Collateral valuation lag above 90 days for 8% of the retail mortgage portfolio.', 'Critical', 'Data', 'Open', -12],
+  ['M-0031', 'Scenario weights stale', 'Macro scenario weights reflect prior-year ALCO assumptions and need committee refresh.', 'Medium', 'Methodology', 'Open', 30],
+  ['M-0031', 'Q-factor evidence missing', 'Q-factor documentation incomplete for the CRE segment.', 'Medium', 'Documentation', 'Open', 55],
+  ['M-0038', 'Stage 2 triggers', 'Stage 2 trigger calibration needs a post-pandemic refresh; thresholds over-stage by about 15%.', 'Critical', 'Methodology', 'Open', 18],
+  ['M-0038', 'Cross-border staging', 'GBP and EUR books apply different SICR definitions.', 'Medium', 'Data', 'Open', 40],
+  ['M-0038', 'Disclosure template gap', 'Pillar 3 disclosure table not aligned to the current template.', 'Medium', 'Documentation', 'Open', 70],
+  ['M-0042', 'NMD behaviour assumptions', 'Repricing beta assumes 60% pass-through against 72% observed.', 'Medium', 'Methodology', 'Open', -8],
+  ['M-0048', 'Intraday data gap', 'Four-hour gap in real-time position data from APAC operations.', 'Medium', 'Data', 'Open', 25],
+  ['M-0071', 'NII rate path', 'NII component needs rate-path recalibration: +200bp shock 15% above benchmark.', 'Critical', 'Methodology', 'Open', 12],
+  ['M-0071', 'Fee income assumptions', 'Fee income projection uses undocumented AUM growth assumptions.', 'Medium', 'Documentation', 'Open', 35],
+  ['M-0071', 'Trading tail risk', 'Trading revenue tail risk underestimated; 99th percentile exceedances twice the expected rate.', 'Critical', 'Methodology', 'Open', 12],
+  ['M-0071', 'UAT sign-off', 'UAT sign-off delayed by a core banking interface dependency.', 'Medium', 'Implementation', 'In Progress', 20],
+  ['M-0076', 'CRE loss rates stale', 'CRE loss rates based on 2019 vintage data; no post-pandemic structural update.', 'Critical', 'Data', 'Open', 15],
+  ['M-0076', 'Auto loan recalibration', 'Auto loan delinquency transition matrix not updated; subprime performance has diverged.', 'Critical', 'Methodology', 'Open', 15],
+  ['M-0076', 'Static correlations', 'Cross-portfolio correlation uses static assumptions with no tail dependence.', 'Medium', 'Methodology', 'Open', 50],
+  ['M-0076', 'Scenario mapping', 'Unemployment, HPI and commercial vacancy not mapped to supervisory scenario variables.', 'Medium', 'Data', 'Open', 50],
+  ['M-0076', 'Sensitivity section', 'Documentation lacks the sensitivity analysis section required by policy 4.2.3.', 'Low', 'Documentation', 'Open', 80],
+  ['M-0078', 'RWA linkage', 'Credit risk RWA feed into the capital projection is unreconciled.', 'Critical', 'Methodology', 'Open', 10],
+  ['M-0078', 'Capital actions', 'Dividend and buyback assumptions are undocumented.', 'Medium', 'Documentation', 'Open', 40],
+  ['M-0078', 'Payout ratio conflict', 'Dividend payout ratio assumption conflicts with the board-approved capital plan.', 'Medium', 'Methodology', 'Open', 40]
+];
+const GENERIC_FINDINGS = {
+  Data: ['Missing values above tolerance in a key driver', 'Development sample excludes recent vintages', 'Source extract does not reconcile to the ledger', 'Manual adjustments to input data not logged'],
+  Methodology: ['Segmentation not re-tested since development', 'Overlay applied without quantitative support', 'Challenger comparison not performed', 'Calibration drift in the latest backtest'],
+  Documentation: ['Assumptions log incomplete', 'User guide out of date with production code', 'Limitations section does not cover new use', 'Change log missing the last release'],
+  Implementation: ['Production code differs from development code', 'Reconciliation of outputs not evidenced', 'Access controls on parameter tables too broad'],
+  Performance: ['Rank ordering weakened in the lowest band', 'Stability index above tolerance for one segment', 'Backtest exceedances above expectation']
+};
+function buildFindings() {
+  const F = []; let fn = 0;
+  const nextId = () => 'F-' + String(++fn).padStart(4, '0');
+  HERO_FINDINGS.forEach(([model, title, desc, sev, cat, status, dueOff]) => {
+    F.push({ id: nextId(), model, title, desc, sev, cat, status, raised: iso(addDays(TODAY, -ri(60, 200))), due: iso(addDays(TODAY, dueOff)), closed: null, owner: MBY[model].owner, source: 'import' });
+  });
+  const pool = MODELS.filter(m => !m.hero && !m.demo && ['Validation', 'Implementation', 'Monitoring', 'Reg/Audit'].includes(m.phase));
+  const weighted = pool.flatMap(m => Array(m.tier === 'High' ? 3 : m.tier === 'Medium' ? 2 : 1).fill(m));
+  const extra = [...Array(6).fill('Critical'), ...Array(34).fill('Medium'), ...Array(41).fill('Low')];
+  extra.forEach(sev => {
+    const m = pick(weighted); const cat = pick(Object.keys(GENERIC_FINDINGS));
+    F.push({ id: nextId(), model: m.id, title: pick(GENERIC_FINDINGS[cat]), desc: pick(GENERIC_FINDINGS[cat]) + '.', sev, cat, status: rnd() < 0.3 ? 'In Progress' : 'Open', raised: iso(addDays(TODAY, -ri(30, 220))), due: iso(addDays(TODAY, ri(-30, 120))), closed: null, owner: m.owner, source: 'import' });
+  });
+  for (let i = 0; i < 134; i++) {
+    const m = pick(weighted); const cat = pick(Object.keys(GENERIC_FINDINGS)); const sev = pick(['Critical', 'Medium', 'Medium', 'Low', 'Low', 'Low']);
+    const raised = addDays(TODAY, -ri(120, 900));
+    F.push({ id: nextId(), model: m.id, title: pick(GENERIC_FINDINGS[cat]), desc: pick(GENERIC_FINDINGS[cat]) + '.', sev, cat, status: 'Closed', raised: iso(raised), due: iso(addDays(raised, ri(60, 180))), closed: iso(addDays(raised, ri(40, 200))), owner: m.owner, source: 'import' });
+  }
+  return F;
+}
+const SEED_FINDINGS = buildFindings();
+/* Extracted from validation_report_M-0301.pdf (T11) */
+const EXTRACTED = [
+  { title: 'Default definition gap', desc: 'Development sample excludes restructured loans that reached 90+ days past due.', sev: 'Critical', cat: 'Data', dueOff: 60, keep: true },
+  { title: 'Macro overlay not recalibrated', desc: 'Macroeconomic overlay has not been recalibrated since the model was built.', sev: 'Medium', cat: 'Methodology', dueOff: 90, keep: true },
+  { title: 'Driver rationale missing', desc: 'Variable selection rationale missing for 4 of 11 drivers.', sev: 'Medium', cat: 'Documentation', dueOff: 90, keep: true },
+  { title: 'Rank-order reversal', desc: 'Minor rank-ordering reversal in score band 7.', sev: 'Low', cat: 'Performance', dueOff: 120, keep: false }
+];
+const FINDINGS = [...SEED_FINDINGS, ...EXTRACTED.filter(e => e.keep).map((e, i) => ({ id: 'F-' + String(SEED_FINDINGS.length + i + 1).padStart(4, '0'), model: 'M-0301', title: e.title, desc: e.desc, sev: e.sev, cat: e.cat, status: 'Open', raised: iso(TODAY), due: iso(addDays(TODAY, e.dueOff)), closed: null, owner: MBY['M-0301'].owner, source: 'extraction' }))];
+
+/* ---------- T05 approvals ---------- */
+const HERO_APPROVALS = {
+  'M-0012': [['MRC', 'Initial approval', 'Approved', 'Full validation within 6 months of go-live', 900], ['MRC', 'Annual review', 'Approved', 'Annual recalibration; CRE segment under enhanced monitoring', 470], ['MRC', 'Periodic review', 'Conditional', 'Resolve the CRE data gap by next quarter; interim risk adjustment on CRE outputs', 160]],
+  'M-0015': [['MRC', 'Initial approval', 'Approved', 'Semi-annual monitoring cadence', 820], ['MRC', 'Annual review', 'Approved', 'Quarterly monitoring enhanced', 560], ['MRC', 'Periodic review', 'Conditional', 'PSI breach requires recalibration; revalidation triggered', 385]],
+  'M-0031': [['MRC', 'Initial approval', 'Approved', 'Quarterly scenario weight review by ALCO', 1200], ['MRC', 'Annual review', 'Conditional', 'Update macro scenario weights for the current rate environment', 440], ['MRC', 'Annual review', 'Approved', 'Supervisory review readiness confirmed; CRE Q-factor evidence still pending', 260]],
+  'M-0038': [['MRC', 'Initial approval', 'Approved', 'Quarterly staging migration monitoring', 1100], ['MRC', 'Periodic review', 'Conditional', 'Recalibrate Stage 2 triggers before next half-year close', 300]],
+  'M-0042': [['MRC', 'Initial approval', 'Approved', 'Quarterly NII backtesting required', 900], ['MRC', 'Periodic review', 'Approved', 'Refresh NMD behavioural assumptions; revalidation triggered', 420]],
+  'M-0048': [['MRC', 'Initial approval', 'Approved', 'Semi-annual revalidation cycle', 870], ['MRC', 'Periodic review', 'Approved', 'Stress gap KPI breach noted for next revalidation', 170]],
+  'M-0071': [['MRC', 'ToR', 'Approved', 'Scope extended to fee income and trading revenue sub-models', 470], ['Validation Committee', 'Validation complete', 'Conditional', 'Five findings issued; remediation plan required', 260], ['MRC', 'Pre-implementation', 'Conditional', 'Go-live blocked until the NII rate path and trading tail risk findings are resolved; interim v4.8 as fallback', 220]],
+  'M-0082': [['MRC', 'ToR', 'Approved', 'Complete the model development document by next quarter', 270]],
+  'M-0085': [['MRC', 'ToR', 'Approved', 'None', 230]],
+  'M-0003': [['MRC', 'Retirement', 'Approved', 'Archive complete; successor M-0012 validated', 480]],
+  'M-0005': [['MRC', 'Retirement', 'Approved', 'Decommission complete', 380]],
+  'M-0008': [['MRC', 'Retirement', 'Approved', 'Full archive with lineage link to M-0042', 250]]
+};
+function buildApprovals() {
+  const A = []; let an = 200;
+  const add = (model, forum, type, dec, cond, ago) => A.push({ id: 'A-' + String(++an).padStart(4, '0'), model, forum, type, decision: dec, conditions: cond === 'None' ? '' : cond, date: iso(addDays(TODAY, -ago)), condStatus: dec === 'Conditional' ? 'Open' : null });
+  Object.entries(HERO_APPROVALS).forEach(([m, list]) => list.forEach(a => add(m, ...a)));
+  const cands = MODELS.filter(m => !m.hero && !m.demo && ['Implementation', 'Monitoring', 'Reg/Audit', 'Retirement'].includes(m.phase));
+  shuffle(cands);
+  let conditional = 0;
+  cands.forEach(m => {
+    const k = ri(1, 4);
+    for (let i = k; i >= 1; i--) {
+      const latest = i === 1;
+      let dec = 'Approved';
+      if (latest && conditional < 38 && m.phase !== 'Retirement' && rnd() < 0.24) { dec = 'Conditional'; conditional++; }
+      const type = m.phase === 'Retirement' && latest ? 'Retirement' : i === k ? 'Initial approval' : pick(['Annual review', 'Periodic review']);
+      add(m.id, 'MRC', type, dec, dec === 'Conditional' ? pick(['Close open Critical finding before next review', 'Enhanced quarterly monitoring until recalibration', 'Document compensating controls for the data gap']) : pick(['None', 'Annual backtesting', 'None']), ri(30, 300) + (i - 1) * 365);
+    }
+  });
+  MODELS.filter(m => !m.hero && !m.demo && m.phase === 'Validation').forEach(m => add(m.id, 'MRC', 'ToR', 'Approved', 'None', ri(120, 300)));
+  MODELS.filter(m => !m.hero && !m.demo && m.phase === 'Development').forEach(m => add(m.id, 'MRC', 'ToR', 'Approved', 'None', ri(40, 200)));
+  return A;
+}
+const APPROVALS = buildApprovals();
+
+/* ---------- T06 CDEs and DQ rules, T10 results ---------- */
+const CDE_CATALOG = {
+  'Credit Risk': [['Obligor total assets', 'Commercial Loan Origination (CLOS)', 'OBLIGOR_FINANCIALS', 'TOTAL_ASSETS_AMT'], ['Days past due', 'Core Loan Servicing (CLS)', 'LOAN_DELINQUENCY', 'DPD_CNT'], ['Bureau score', 'Commercial Loan Origination (CLOS)', 'BUREAU_PULL', 'SCORE_VAL'], ['Collateral appraised value', 'Collateral Management (CMS)', 'COLLATERAL_VALUATION', 'APPRAISED_VALUE_AMT'], ['Default flag', 'Risk Data Warehouse (RDW)', 'DEFAULT_EVENTS', 'DEFAULT_IND'], ['Facility commitment', 'Commercial Loan Origination (CLOS)', 'FACILITY', 'COMMITMENT_AMT']],
+  'Provisioning': [['Loan balance', 'Risk Data Warehouse (RDW)', 'LOAN_TAPE', 'CURR_BAL_AMT'], ['GDP growth scenario', 'Market Data Hub (MDH)', 'MACRO_SCENARIO', 'GDP_GROWTH_PCT'], ['Historical loss severity', 'Risk Data Warehouse (RDW)', 'LOSS_HISTORY', 'LOSS_SEVERITY_PCT'], ['Prepayment speed', 'Risk Data Warehouse (RDW)', 'PREPAY_CURVES', 'CPR_PCT'], ['Q-factor adjustment', 'Finance Planning (FPL)', 'QFACTOR_ADJ', 'ADJ_BPS']],
+  'Balance Sheet': [['Deposit balance', 'Core Deposits (CDS)', 'DEPOSIT_BALANCES', 'EOD_BAL_AMT'], ['Repricing beta', 'Treasury ALM Platform (ALMP)', 'NMD_ASSUMPTIONS', 'REPRICING_BETA_PCT'], ['Par yield curve', 'Market Data Hub (MDH)', 'RATE_CURVES', 'PAR_RATE_PCT'], ['Intraday net position', 'Treasury ALM Platform (ALMP)', 'INTRADAY_POSITIONS', 'NET_POSITION_AMT'], ['HQLA level', 'Treasury ALM Platform (ALMP)', 'HQLA_INVENTORY', 'HQLA_LEVEL_CD']],
+  'Forecasting': [['GL period balance', 'General Ledger (GL)', 'GL_BALANCES', 'PERIOD_AMT'], ['Planned headcount', 'Finance Planning (FPL)', 'HEADCOUNT_PLAN', 'FTE_CNT'], ['Unemployment rate', 'Market Data Hub (MDH)', 'MACRO_SCENARIO', 'UNEMP_RATE_PCT'], ['Pipeline expected amount', 'Relationship CRM (CRM)', 'OPPORTUNITIES', 'EXPECTED_AMT']],
+  'CCAR/Stress Testing': [['CRE loss rate', 'Risk Data Warehouse (RDW)', 'LOSS_HISTORY', 'CRE_LOSS_RATE_PCT'], ['RWA by asset class', 'Risk Data Warehouse (RDW)', 'RWA_DETAIL', 'RWA_AMT'], ['Planned dividend', 'Finance Planning (FPL)', 'CAPITAL_PLAN', 'DIVIDEND_AMT'], ['HPI change scenario', 'Market Data Hub (MDH)', 'MACRO_SCENARIO', 'HPI_CHG_PCT'], ['Trading P&L', 'Market Data Hub (MDH)', 'TRADING_PNL', 'DAILY_PNL_AMT']]
+};
+const RULES = ['Not null for active records', 'Within valid range', 'Reconciles to general ledger within 0.5%', 'Refreshed within 90 days', 'Record count matches source'];
+const HERO_DQ = { // model -> [cdeIndex, forced status, issue text, impact]
+  'M-0012': [[0, 'Fail', '14% missing in the CRE construction lending sub-segment', 'PD estimates unreliable for about $2.1B of CRE exposure'], [3, 'Warn', 'Appraisal older than 90 days for 6% of records', 'LTV stale for 340 facilities']],
+  'M-0015': [[3, 'Fail', 'Appraisal older than 90 days for 8% of retail mortgage records', 'LGD floor may understate loss for about $890M']],
+  'M-0031': [[4, 'Fail', 'CRE qualitative adjustment rationale not evidenced', 'Audit trail gap for a $450M allowance overlay'], [1, 'Warn', 'GDP forecast one quarter behind the published scenario', 'Scenario weights may lag the outlook']],
+  'M-0042': [[1, 'Fail', 'Observed 72% pass-through against modelled 60%', 'NII sensitivity understated by about $18M under +200bp']],
+  'M-0048': [[3, 'Fail', 'Four-hour gap in APAC intraday positions', 'Intraday LCR blind spot during APAC hours']],
+  'M-0076': [[0, 'Fail', '2019 vintage loss rates, no post-pandemic update', 'CRE stressed losses may be understated by 30–40% for office']],
+  'M-0078': [[1, 'Fail', 'Credit risk RWA feed unreconciled to the ledger', 'CET1 denominator accuracy at risk']]
+};
+function buildCDE() {
+  const C = [], R = [], RES = [], ISS = [];
+  let cn = 100, rn = 300, iss = 0;
+  const runId = 'R-' + iso(addDays(TODAY, -3)).replace(/-/g, '');
+  MODELS.forEach(m => {
+    if (['Initiation', 'Development', 'Retirement'].includes(m.phase)) return;
+    const cat = CDE_CATALOG[m.type];
+    const hero = HERO_DQ[m.id] || [];
+    const idxs = shuffle([...cat.keys()]).slice(0, m.hero ? cat.length : ri(2, 3));
+    hero.forEach(h => { if (!idxs.includes(h[0])) idxs.push(h[0]); });
+    idxs.forEach(ix => {
+      const [name, sys, tbl, col] = cat[ix];
+      const cde = { id: 'CDE-' + String(++cn).padStart(4, '0'), model: m.id, name, sys, tbl, col, owner: pick(byRole('Model Owner')) };
+      const rule = { id: 'DQR-' + String(++rn).padStart(4, '0'), cde: cde.id, desc: pick(RULES), pass: 98, warn: 95 };
+      const hs = hero.find(h => h[0] === ix);
+      const tested = ri(800, 48000);
+      let status = hs ? hs[1] : (rnd() < 0.05 ? 'Fail' : rnd() < 0.1 ? 'Warn' : 'Pass');
+      const rate = status === 'Pass' ? 0.985 + rnd() * 0.015 : status === 'Warn' ? 0.952 + rnd() * 0.025 : 0.82 + rnd() * 0.12;
+      const failed = Math.round(tested * (1 - rate));
+      const res = { run: runId, date: iso(addDays(TODAY, -3)), rule: rule.id, tested, failed };
+      res.status = dqStatus(res, rule); cde.status = res.status;
+      C.push(cde); R.push(rule); RES.push(res);
+      if (res.status === 'Fail') ISS.push({ id: 'DQI-' + String(++iss).padStart(3, '0'), cde: cde.id, model: m.id, rule: rule.id, desc: hs ? hs[2] : `${rule.desc} failed for ${(100 * failed / tested).toFixed(1)}% of records`, sev: m.tier === 'High' ? 'Critical' : 'Medium', detected: res.date, status: 'Open', impact: hs ? hs[3] : 'Model input quality below tolerance', source: 'seed' });
+    });
+  });
+  return { C, R, RES, ISS };
+}
+function dqStatus(res, rule) { const pr = 100 * (1 - res.failed / res.tested); return pr >= rule.pass ? 'Pass' : pr >= rule.warn ? 'Warn' : 'Fail'; }
+const DQ = buildCDE();
+/* Demo T10 file: 6 rules on seed models, 2 fall below warn */
+const DEMO_DQ = (() => {
+  const passing = DQ.C.filter(c => c.status === 'Pass' && MBY[c.model].tier !== 'Low');
+  const chosen = passing.filter((c, i) => i % 23 === 0).slice(0, 6);
+  const runId = 'R-' + iso(TODAY).replace(/-/g, '');
+  return chosen.map((c, i) => { const rule = DQ.R.find(r => r.cde === c.id); const tested = ri(4000, 20000); const failed = i === 1 || i === 4 ? Math.round(tested * (0.08 + rnd() * 0.04)) : Math.round(tested * rnd() * 0.012); const res = { run: runId, date: iso(TODAY), rule: rule.id, tested, failed, cde: c }; res.status = dqStatus(res, rule); return res; });
+})();
+DEMO_DQ.forEach(res => { const c = res.cde; c.status = res.status; DQ.RES.push({ ...res, cde: undefined }); if (res.status === 'Fail') { const m = MBY[c.model]; DQ.ISS.push({ id: 'DQI-' + String(DQ.ISS.length + 1).padStart(3, '0'), cde: c.id, model: c.model, rule: res.rule, desc: `${DQ.R.find(r => r.id === res.rule).desc} failed for ${(100 * res.failed / res.tested).toFixed(1)}% of records`, sev: m.tier === 'High' ? 'Critical' : 'Medium', detected: res.date, status: 'Open', impact: 'Model input quality below tolerance', source: 'demo' }); } });
+
+/* ---------- T07 KPIs, T08 results, T09 curves ---------- */
+const KPI_SET = {
+  PD: [['Gini coefficient', 'higher', 0.65, 5], ['Population stability index', 'lower', 0.10, 20], ['Brier score', 'lower', 0.05, 10]],
+  Scorecard: [['Gini coefficient', 'higher', 0.55, 5], ['Population stability index', 'lower', 0.10, 20], ['KS statistic', 'higher', 0.35, 5]],
+  Rating: [['Gini coefficient', 'higher', 0.60, 5], ['Population stability index', 'lower', 0.10, 20]],
+  Collections: [['Gini coefficient', 'higher', 0.50, 5], ['Roll-rate accuracy', 'higher', 0.85, 3]],
+  VaR: [['Backtest exceedances', 'lower', 4, 25]],
+  LGD: [['RMSE', 'lower', 0.15, 10], ['Population stability index', 'lower', 0.10, 20], ['Coverage ratio', 'higher', 0.95, 2]],
+  EAD: [['Mean absolute error', 'lower', 0.10, 10], ['R-squared', 'higher', 0.80, 5]],
+  default: [['Forecast accuracy', 'higher', 0.90, 3], ['Mean absolute % error', 'lower', 0.05, 20], ['Bias', 'lower', 0.02, 25]]
+};
+function kpiStatus(v, k) { const tol = k.tol / 100; if (k.dir === 'higher') return v >= k.thr ? 'Pass' : v >= k.thr * (1 - tol) ? 'Warn' : 'Fail'; return v <= k.thr ? 'Pass' : v <= k.thr * (1 + tol) ? 'Warn' : 'Fail'; }
+const HERO_KPI = { 'M-0012': [0.71, 0.08, 0.04], 'M-0015': [0.12, 0.13, 0.935], 'M-0023': [0.06, 0.87], 'M-0031': [0.93, 0.04, 0.019], 'M-0038': [0.88, 0.064, 0.026], 'M-0042': [0.96, 0.02, 0.006], 'M-0048': [0.92, 0.07, 0.027], 'M-0055': [0.95, 0.03, 0.01], 'M-0061': [0.97, 0.02, 0.008], 'M-0071': [0.86, 0.041, 0.012] };
+const HERO_BREACH = new Set(['M-0015', 'M-0031', 'M-0038', 'M-0048', 'M-0071']);
+function buildKPI() {
+  const K = [], RES = [];
+  const periods = []; { const q = Math.floor(TODAY.getMonth() / 3); for (let i = 8; i >= 1; i--) { let y = TODAY.getFullYear(), qq = q - i; while (qq < 0) { qq += 4; y--; } periods.push(`${y}-Q${qq + 1}`); } }
+  const prod = MODELS.filter(m => ['Implementation', 'Monitoring', 'Reg/Audit'].includes(m.phase));
+  const breachers = new Set([...HERO_BREACH, ...shuffle(prod.filter(m => !m.hero).map(m => m.id)).slice(0, 9)]);
+  prod.forEach(m => {
+    const set = KPI_SET[m.sub] || KPI_SET.default;
+    const hv = HERO_KPI[m.id];
+    const breachIdx = breachers.has(m.id) ? (m.id === 'M-0015' ? 1 : ri(0, set.length - 1)) : -1;
+    set.forEach(([name, dir, thr, tol], j) => {
+      const k = { id: `K-${m.id.slice(2)}-${String(j + 1).padStart(2, '0')}`, model: m.id, name, dir, thr, tol };
+      K.push(k);
+      const good = dir === 'higher' ? thr * (1.03 + rnd() * 0.12) : thr * (0.45 + rnd() * 0.4);
+      let bad = dir === 'higher' ? thr * (0.9 - rnd() * 0.05) : thr * (1.25 + rnd() * 0.3);
+      periods.forEach((p, pi) => {
+        let v;
+        if (hv && pi === periods.length - 1 && hv[j] != null) v = hv[j];
+        else if (j === breachIdx) { const f = pi / (periods.length - 1); v = good + (bad - good) * Math.pow(f, 1.6); }
+        else if (!hv && pi === periods.length - 1 && rnd() < 0.3) v = dir === 'higher' ? thr * (0.985 - rnd() * 0.01) : thr * (1.02 + rnd() * 0.05);
+        else v = good * (0.97 + rnd() * 0.06);
+        v = Math.round(v * 1000) / 1000;
+        if (hv && m.id === 'M-0015' && j === 2 && pi === periods.length - 1) v = 0.935;
+        RES.push({ model: m.id, kpi: k.id, period: p, value: v, backtest: pi % 2 === 1, status: kpiStatus(v, k) });
+      });
+    });
+  });
+  // make hero breach statuses consistent with their latest values
+  return { K, RES, periods };
+}
+const KPI = buildKPI();
+function buildCurves() {
+  const P = [];
+  MODELS.filter(m => ['Implementation', 'Monitoring', 'Reg/Audit'].includes(m.phase)).forEach(m => {
+    if (['PD', 'Scorecard', 'Rating', 'Collections'].includes(m.sub)) {
+      const auc = m.id === 'M-0012' ? 0.84 : Math.round((0.72 + rnd() * 0.15) * 100) / 100;
+      const g = (1 - auc) / auc * 1.9;
+      const xs = [0, .02, .05, .1, .15, .2, .3, .4, .5, .6, .7, .8, .9, 1];
+      xs.forEach((x, i) => P.push({ model: m.id, curve: 'ROC', series: 'roc', i, x, y: Math.round(Math.pow(x, g) * 1000) / 1000, auc: i === 0 ? auc : null }));
+    } else {
+      let base = m.type === 'Balance Sheet' ? 140 : m.type === 'Provisioning' ? 250 : m.sub === 'LGD' ? 0.38 : 100;
+      KPI.periods.forEach((p, i) => { const trend = base * (1 + i * 0.012); const pred = trend * (0.99 + rnd() * 0.02); const drift = HERO_BREACH.has(m.id) ? i * 0.006 : 0; P.push({ model: m.id, curve: 'PRED_VS_ACTUAL', series: 'predicted', i, x: p, y: +pred.toFixed(3) }); P.push({ model: m.id, curve: 'PRED_VS_ACTUAL', series: 'actual', i, x: p, y: +(pred * (1 + drift + (rnd() - 0.5) * 0.02)).toFixed(3) }); });
+    }
+  });
+  return P;
+}
+const CURVES = buildCurves();
+
+/* ---------- T11 documents ---------- */
+const MDD_SECTIONS = POL.mdd_required_sections.split(';').map(s => s.trim());
+const DOCS = [];
+MODELS.forEach(m => {
+  const need = m.phase === 'Initiation' ? [] : m.phase === 'Development' ? ['ToR'] : m.phase === 'Validation' ? ['ToR', 'MDD'] : ['ToR', 'MDD', 'Validation report'];
+  need.forEach(t => { if (m.demo) return; if (m.docGap && t === 'MDD') return; if (!m.hero && t === 'Validation report' && rnd() < 0.08) return; const r = rnd(); DOCS.push({ model: m.id, type: t, missingSections: t === 'MDD' && !m.hero && r < 0.45 ? shuffle([...MDD_SECTIONS]).slice(0, r < 0.15 ? 2 : 1) : [] }); });
+});
+DOCS.push({ model: 'M-0082', type: 'MDD', missingSections: ['Assumptions', 'Data'] });
+DOCS.push({ model: 'M-0301', type: 'ToR', missingSections: [] }, { model: 'M-0301', type: 'Validation report', missingSections: [], extracted: true });
+DOCS.push({ model: 'M-0302', type: 'ToR', missingSections: [] }, { model: 'M-0302', type: 'MDD', missingSections: ['Limitations', 'Monitoring plan'], extracted: true });
+DOCS.push({ model: 'M-0303', type: 'ToR', missingSections: [] });
+
+/* ===== Rules engine (design section 7) ===== */
+function dueDate(m) { return m.lastVal && m.freq ? addMonths(parse(m.lastVal), FREQ_MONTHS[m.freq]) : null; }
+function daysToDue(m) { const d = dueDate(m); return d ? daysBetween(TODAY, d) : null; }
+function column(m) { if (m.phase === 'Monitoring') { const d = daysToDue(m); if (d !== null && d <= +POL.reval_lead_days) return 'Revalidation'; } return m.phase; }
+function revalStatus(m) { const d = daysToDue(m); if (d === null) return null; return d < 0 ? 'Overdue' : d <= +POL.due_soon_days ? 'Due soon' : 'Scheduled'; }
+const openF = m => FINDINGS.filter(f => f.model === m.id && f.status !== 'Closed');
+function latestApproval(m) { return APPROVALS.filter(a => a.model === m.id).sort((a, b) => b.date.localeCompare(a.date))[0] || null; }
+let KPI_IDX = null;
+function latestKPIs(m) { if (!KPI_IDX) { KPI_IDX = new Map(); KPI.RES.forEach(r => { if (!KPI_IDX.has(r.kpi)) KPI_IDX.set(r.kpi, []); KPI_IDX.get(r.kpi).push(r); }); } const ks = KPI.K.filter(k => k.model === m.id); return ks.map(k => { const r = KPI_IDX.get(k.id) || []; return { ...k, latest: r[r.length - 1], history: r }; }); }
+function scoreOf(m, weights) {
+  if (m.phase === 'Retirement') return null;
+  const w = weights || { doc: +POL.weight_documentation, val: +POL.weight_validation_currency, iss: +POL.weight_issue_remediation, mrc: +POL.weight_mrc_compliance, mon: +POL.weight_monitoring };
+  const comp = {};
+  const req = m.phase === 'Initiation' ? [] : m.phase === 'Development' ? ['ToR'] : m.phase === 'Validation' ? ['ToR', 'MDD'] : ['ToR', 'MDD', 'Validation report'];
+  if (req.length) { const docs = DOCS.filter(d => d.model === m.id); const have = req.filter(t => docs.some(d => d.type === t)).length; const mdd = docs.find(d => d.type === 'MDD'); const miss = mdd ? mdd.missingSections.length / MDD_SECTIONS.length : 0; comp.doc = Math.max(0, 100 * have / req.length - 100 * miss); }
+  const d = daysToDue(m); if (d !== null) comp.val = d >= 0 ? 100 : Math.max(0, 100 + 2 * d);
+  if (m.legacyConflict) comp.val = 40;
+  const of = openF(m); comp.iss = Math.max(0, 100 - 25 * of.filter(f => f.sev === 'Critical').length - 10 * of.filter(f => f.sev === 'Medium').length - 3 * of.filter(f => f.sev === 'Low').length - 10 * of.filter(f => f.due < iso(TODAY)).length);
+  const la = latestApproval(m);
+  if (['Implementation', 'Monitoring', 'Reg/Audit'].includes(m.phase)) comp.mrc = !la ? 0 : la.decision === 'Approved' ? 100 : la.decision === 'Conditional' ? 70 : 0;
+  if (['Monitoring', 'Reg/Audit'].includes(m.phase)) { const ks = latestKPIs(m); if (ks.length) comp.mon = 100 * ks.filter(k => k.latest.status === 'Pass').length / ks.length; }
+  const keys = Object.keys(comp); const tw = keys.reduce((s, k) => s + w[k], 0);
+  const total = keys.reduce((s, k) => s + comp[k] * w[k], 0) / tw;
+  return { total: Math.round(total), comp, weights: w };
+}
+function kpiBreach(m) { return latestKPIs(m).some(k => k.latest.status === 'Fail'); }
+
+/* ===== Walkthrough engine ===== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = n => Number(n).toLocaleString('en-US');
+const pct = (a, b) => b ? Math.round(100 * a / b) : 0;
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ABORT = Symbol('abort');
+let RUN = 0, INSTANT = false, paused = false, playing = false, speed = 1, cur = 0;
+
+function wait(ms) {
+  const my = RUN;
+  if (INSTANT) return my === RUN ? Promise.resolve() : Promise.reject(ABORT);
+  return new Promise((res, rej) => {
+    let left = ms / speed, last = performance.now();
+    const tick = now => { if (my !== RUN) return rej(ABORT); if (!paused) left -= now - last; last = now; if (left <= 0) res(); else requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  });
+}
+
+/* ---------- Ledger (database row counts) ---------- */
+const TABLES = ['policy_setting', 'app_user', 'model', 'tiering_answer', 'validation', 'finding', 'approval', 'document', 'cde', 'dq_rule', 'kpi', 'kpi_result', 'performance_point', 'dq_result', 'dq_issue'];
+const counts = Object.fromEntries(TABLES.map(t => [t, 0]));
+function renderLedger() {
+  const total = TABLES.reduce((s, t) => s + counts[t], 0);
+  $('#ledger').innerHTML = TABLES.map(t => `<div class="k">${t}</div><div class="v ${counts[t] ? '' : 'zero'}" id="lg-${t}">${fmt(counts[t])}</div>`).join('') + `<div class="k tot">audit_event</div><div class="v tot" id="lg-audit">${fmt(total)}</div>`;
+}
+function setCount(t, v) {
+  const from = counts[t]; counts[t] = v;
+  const el = $('#lg-' + t), au = $('#lg-audit');
+  if (!el) return;
+  const total = TABLES.reduce((s, k) => s + counts[k], 0);
+  if (INSTANT || REDUCED) { el.textContent = fmt(v); el.classList.toggle('zero', !v); au.textContent = fmt(total); return; }
+  const t0 = performance.now(), dur = 700 / speed, a0 = total - (v - from);
+  el.classList.add('flash'); el.classList.remove('zero');
+  const step = now => { const f = Math.min(1, (now - t0) / dur); el.textContent = fmt(Math.round(from + (v - from) * f)); au.textContent = fmt(Math.round(a0 + (total - a0) * f)); if (f < 1) requestAnimationFrame(step); else setTimeout(() => el.classList.remove('flash'), 400); };
+  requestAnimationFrame(step);
+}
+
+/* ---------- Derived figures ---------- */
+const PROD = m => ['Monitoring', 'Reg/Audit'].includes(m.phase);
+const ACTIVE = MODELS.filter(m => m.phase !== 'Retirement');
+const SCORES = Object.fromEntries(MODELS.map(m => [m.id, scoreOf(m)]));
+const portfolioScore = () => { const s = MODELS.map(m => SCORES[m.id]).filter(Boolean).map(x => x.total); return Math.round(s.reduce((a, b) => a + b, 0) / s.length); };
+const REVAL = MODELS.filter(m => column(m) === 'Revalidation').sort((a, b) => daysToDue(a) - daysToDue(b));
+const OPEN = FINDINGS.filter(f => f.status !== 'Closed');
+const DQ_OPEN = DQ.ISS.filter(i => i.status === 'Open');
+function insights() {
+  const out = [];
+  MODELS.filter(m => m.legacyConflict).forEach(m => out.push({ sev: 'bad', rule: 'R5', text: `Independence breach on ${m.id} (${m.name}): ${uname(m.owner)} is recorded as both model owner and validator. Reassign the validator before validation continues.`, ids: [m.id] }));
+  REVAL.filter(m => revalStatus(m) === 'Overdue' && m.tier === 'High').forEach(m => out.push({ sev: 'bad', rule: 'R4', text: `${m.id} (${m.name}) is ${-daysToDue(m)} days past its ${m.freq.toLowerCase()} revalidation date and is High tier.`, ids: [m.id] }));
+  const pastDueCrit = OPEN.filter(f => f.sev === 'Critical' && f.due < iso(TODAY));
+  if (pastDueCrit.length) out.push({ sev: 'bad', rule: 'R9', text: `${pastDueCrit.length} Critical findings are past their remediation date, on ${[...new Set(pastDueCrit.map(f => f.model))].join(', ')}.`, ids: [...new Set(pastDueCrit.map(f => f.model))] });
+  const mddGap = DOCS.filter(d => d.type === 'MDD' && d.missingSections.length >= 2);
+  mddGap.slice(0, 2).forEach(d => out.push({ sev: 'warn', rule: 'R8', text: `MDD for ${d.model} is missing ${d.missingSections.join(' and ')}. Documentation score reduced.`, ids: [d.model] }));
+  const breach = MODELS.filter(kpiBreach);
+  out.push({ sev: 'warn', rule: 'R6', text: `${breach.length} production models failed at least one KPI in the latest period, including ${breach.filter(m => m.hero).slice(0, 3).map(m => m.id).join(', ')}.`, ids: breach.filter(m => m.hero).slice(0, 3).map(m => m.id) });
+  const critDQ = DQ_OPEN.filter(i => i.sev === 'Critical');
+  out.push({ sev: 'warn', rule: 'R7', text: `${critDQ.length} Critical data quality issues are open on High-tier models' critical data elements.`, ids: [...new Set(critDQ.slice(0, 3).map(i => i.model))] });
+  return out.slice(0, 7);
+}
+
+/* ---------- Stage registry ---------- */
+const STAGES = [
+  { key: 'overview', group: 'Start', title: 'How the flow works', tpls: [], flow: {}, run: runOverview },
+  { key: 'policy', group: 'Build the inventory', step: 1, title: 'Configure policy', tpls: ['T12'], flow: { src: 'T12 Policy settings', path: 'import', db: 1 }, adds: { policy_setting: POLICY.length }, run: runPolicy },
+  { key: 'users', group: 'Build the inventory', step: 2, title: 'Load users and roles', tpls: ['T01'], flow: { src: 'T01 Users and roles', path: 'import', db: 1 }, adds: { app_user: USERS.length }, run: runUsers },
+  { key: 'inventory', group: 'Build the inventory', step: 3, title: 'Load the model inventory', tpls: ['T02'], flow: { src: 'T02 Model inventory', path: 'import', db: 1 }, adds: { model: MODELS.length, tiering_answer: MODELS.length }, run: runInventory },
+  { key: 'history', group: 'Build the inventory', step: 4, title: 'Load validation history', tpls: ['T03', 'T04', 'T05'], flow: { src: 'T03 · T04 · T05', path: 'import', db: 1 }, adds: { validation: VALIDATIONS.length, finding: SEED_FINDINGS.length, approval: APPROVALS.length }, run: runHistory },
+  { key: 'docs', group: 'Build the inventory', step: 4, title: 'Upload key documents', tpls: ['T11'], flow: { src: 'T11 Documents', path: 'extract', db: 1 }, adds: { document: DOCS.length, finding: FINDINGS.length }, run: runDocs },
+  { key: 'cde', group: 'Build the inventory', step: 5, title: 'Register data elements and KPIs', tpls: ['T06', 'T07'], flow: { src: 'T06 · T07', path: 'import', db: 1 }, adds: { cde: DQ.C.length, dq_rule: DQ.R.length, kpi: KPI.K.length }, run: runCDE },
+  { key: 'results', group: 'Build the inventory', step: 6, title: 'Load results files', tpls: ['T08', 'T09', 'T10'], flow: { src: 'T08 · T09 · T10', path: 'import', db: 1 }, adds: { kpi_result: KPI.RES.length, performance_point: CURVES.length, dq_result: DQ.RES.length, dq_issue: DQ.ISS.length }, run: runResults },
+  { key: 'rules', group: 'Build the inventory', step: 7, title: 'Run the rules engine', tpls: [], flow: { db: 1, rules: 1 }, run: runRules },
+  { key: 'dash', group: 'Outputs', title: 'Dashboards', tpls: [], flow: { db: 1, rules: 1, out: 'Command Center · Operations · Data Audit' }, run: runDashboard },
+  { key: 'report', group: 'Outputs', title: 'MRC governance report', tpls: [], flow: { db: 1, rules: 1, out: 'MRC report' }, run: runReport },
+  { key: 'copilot', group: 'Outputs', title: 'Audit Copilot', tpls: [], flow: { db: 1, out: 'Audit Copilot' }, run: runCopilot }
+];
+const doneSet = new Set();
+
+function renderRail() {
+  let html = '', lastGroup = '';
+  STAGES.forEach((s, i) => {
+    if (s.group !== lastGroup) { html += `<li class="group-label" aria-hidden="true">${esc(s.group)}</li>`; lastGroup = s.group; }
+    const st = i === cur ? 'cur' : doneSet.has(i) ? 'done' : '';
+    const sub = s.step ? `<span>Step ${s.step}</span>` : '';
+    const tp = s.tpls.map(t => `<span class="tpl">${t}</span>`).join('');
+    html += `<li><button class="step ${st}" data-i="${i}" aria-current="${i === cur ? 'step' : 'false'}"><span class="dot">${doneSet.has(i) && i !== cur ? '✓' : i}</span><span><span class="t">${esc(s.title)}</span><span class="s">${sub}${tp}</span></span></button></li>`;
+  });
+  $('#steps').innerHTML = html;
+  $('#steps').querySelectorAll('.step').forEach(b => b.onclick = () => goTo(+b.dataset.i));
+  const sEl = $('#steps'), cb = sEl.querySelector('.step.cur'); if (cb && sEl.scrollWidth > sEl.clientWidth + 4) sEl.scrollLeft = cb.parentElement.offsetLeft - 24;
+  $('#now').innerHTML = `<em>${cur}/${STAGES.length - 1}</em> · ${esc(STAGES[cur].title)}`;
+  $('#prog').style.width = (100 * cur / (STAGES.length - 1)) + '%';
+  $('#bBack').disabled = cur === 0; $('#bNext').disabled = cur === STAGES.length - 1;
+}
+const ARROW = '<svg viewBox="0 0 16 16"><path d="M5.5 2 4.1 3.4 8.7 8l-4.6 4.6L5.5 14l6-6z"/></svg>';
+function renderFlow() {
+  const f = STAGES[cur].flow;
+  const n = (on, l, v) => `<div class="fnode ${on ? 'on' : ''}"><div class="l">${l}</div><div class="v">${v}</div></div>`;
+  const a = on => `<div class="farrow ${on ? 'on' : ''}">${ARROW}</div>`;
+  const path = f.path === 'extract' ? 'AI extraction, person confirms' : f.path === 'import' ? 'Import engine, row checks' : 'Import engine / AI extraction';
+  $('#flowbar').innerHTML = n(!!f.src, 'Template', f.src || 'T01–T12') + a(!!f.src) + n(!!f.path, 'Ingest', path) + a(!!f.path) + n(!!f.db, 'Database', '16 tables + audit') + a(!!f.rules) + n(!!f.rules, 'Rules engine', 'R1–R10') + a(!!f.out) + n(!!f.out, 'Output', f.out || 'Dashboards · Report · Copilot');
+}
+function countsBefore(i) {
+  TABLES.forEach(t => counts[t] = 0);
+  STAGES.slice(0, i).forEach(s => Object.entries(s.adds || {}).forEach(([k, v]) => counts[k] = Math.max(counts[k], v)));
+}
+async function goTo(i, opts = {}) {
+  if (i < 0 || i >= STAGES.length) return;
+  RUN++; const my = RUN; cur = i;
+  INSTANT = !!opts.instant || REDUCED || !playing;
+  for (let k = 0; k < i; k++) doneSet.add(k);
+  [...doneSet].forEach(k => { if (k >= i) doneSet.delete(k); });
+  countsBefore(i); renderLedger(); renderRail(); renderFlow();
+  const el = $('#stage'); el.innerHTML = '';
+  window.scrollTo(0, 0);
+  try {
+    await STAGES[i].run(el);
+    if (my !== RUN) return;
+    Object.entries(STAGES[i].adds || {}).forEach(([k, v]) => { if (counts[k] !== v) setCount(k, v); });
+    doneSet.add(i); renderRail();
+    if (playing) { await wait(2200); if (my !== RUN) return; if (i < STAGES.length - 1) goTo(i + 1); else setPlaying(false); }
+  } catch (e) { if (e !== ABORT) console.error(e); }
+}
+function setPlaying(on) {
+  playing = on; paused = !on;
+  $('#playLabel').textContent = on ? 'Pause' : (doneSet.has(STAGES.length - 1) && cur === STAGES.length - 1 ? 'Replay' : 'Play');
+  $('#playIcon').innerHTML = on ? '<path d="M4 2.5h3v11H4zM9 2.5h3v11H9z"/>' : '<path d="M4 2.5v11l9-5.5z"/>';
+  $('#bPlay').setAttribute('aria-label', on ? 'Pause walkthrough' : 'Play walkthrough');
+}
+$('#bPlay').onclick = () => {
+  if (playing) { setPlaying(false); return; }
+  if (cur === STAGES.length - 1 && doneSet.has(cur)) { setPlaying(true); goTo(0); return; }
+  const wasIdle = doneSet.has(cur); setPlaying(true);
+  if (wasIdle) goTo(cur + 1); /* resumes a paused step otherwise */
+};
+$('#bNext').onclick = () => goTo(cur + 1);
+$('#bBack').onclick = () => goTo(cur - 1);
+$('#bRestart').onclick = () => { setPlaying(true); goTo(0); };
+document.querySelectorAll('.seg button').forEach(b => b.onclick = () => { speed = +b.dataset.speed; document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', x === b)); });
+
+/* ---------- Shared pieces ---------- */
+function head(s, lede) {
+  const eb = s.step ? `Onboarding step ${s.step} of 7` : s.group;
+  return `<div class="eyebrow">${esc(eb)}</div><h1>${esc(s.title)}</h1><p class="lede">${lede}</p>`;
+}
+function fileCard(id, name, tpl, meta) {
+  const ext = name.split('.').pop();
+  return `<div class="file" id="${id}"><div class="glyph ${ext}">${ext.toUpperCase()}</div><div><div class="fn">${esc(name)}</div><div class="meta">${tpl ? `<span class="tpl">${tpl}</span> ` : ''}${esc(meta)}</div></div><div class="state" data-state>Waiting</div><div class="bar"><i></i></div></div>`;
+}
+async function runFile(id, phases = ['Uploading', 'Parsing', 'Checking rows (R10)']) {
+  const el = document.getElementById(id); if (!el) return;
+  const st = el.querySelector('[data-state]'), bar = el.querySelector('.bar i');
+  for (let k = 0; k < phases.length; k++) { st.textContent = phases[k] + '…'; bar.style.width = (100 * (k + 1) / (phases.length + 1)) + '%'; await wait(520); }
+}
+function fileDone(id, text) { const el = document.getElementById(id); if (!el) return; const st = el.querySelector('[data-state]'); st.textContent = text; st.classList.add('ok'); el.querySelector('.bar i').style.width = '100%'; }
+const sevPill = s => `<span class="pill ${s === 'Critical' ? 'p-bad' : s === 'Medium' ? 'p-warn' : 'p-mute'}">${s}</span>`;
+const statPill = s => `<span class="pill ${s === 'Pass' ? 'p-good' : s === 'Warn' ? 'p-warn' : s === 'Fail' ? 'p-bad' : 'p-mute'}">${s}</span>`;
+const tierPill = t => `<span class="pill ${t === 'High' ? 'p-bad' : t === 'Medium' ? 'p-warn' : 'p-good'}">${t}</span>`;
+const okPill = () => '<span class="pill p-good">Valid</span>';
+async function streamRows(tbody, rows, delay, keep = 999) {
+  for (const r of rows) {
+    tbody.insertAdjacentHTML('beforeend', r);
+    const tr = tbody.lastElementChild; tr.classList.add('new');
+    while (tbody.children.length > keep) tbody.firstElementChild.remove();
+    await wait(delay);
+  }
+}
+async function countUp(el, to, dur = 1200) {
+  if (INSTANT || REDUCED) { el.textContent = fmt(to); return; }
+  const steps = 18;
+  for (let k = 1; k <= steps; k++) { el.textContent = fmt(Math.round(to * k / steps)); await wait(dur / steps); }
+}
+
+/* ---------- 0 Overview ---------- */
+async function runOverview(el) {
+  const ch = [
+    ['Users and policy', 'Steps 1–2', [['T12', 'Policy settings'], ['T01', 'Users and roles']]],
+    ['Excel imports', 'Steps 3–5', [['T02', 'Model inventory'], ['T03', 'Validation history'], ['T04', 'Findings'], ['T05', 'Approvals'], ['T06', 'CDEs and DQ rules'], ['T07', 'KPI definitions']]],
+    ['Result files (CSV)', 'Step 6', [['T08', 'KPI results'], ['T09', 'Performance curves'], ['T10', 'DQ rule results']]],
+    ['Documents', 'Step 4', [['T11', 'ToR'], ['T11', 'MDD'], ['T11', 'Validation report']]]
+  ];
+  const arrow = n => `<div class="ov-arrow" aria-hidden="true">${Array(n).fill('<svg viewBox="0 0 16 16"><path d="M8 13 2.5 7.5 3.9 6.1 8 10.2l4.1-4.1 1.4 1.4z"/></svg>').join('')}</div>`;
+  el.innerHTML = head(STAGES[0], `Twelve templates enter through four channels, pass row checks or AI extraction with a person's confirmation, and land in one governance database. A rules engine then produces the dashboards, the MRC report and the Copilot's answers. The walkthrough loads a synthetic bank of ${fmt(SEED_MODELS.length)} models step by step.`) +
+    `<div class="ov" aria-label="End-to-end flow">
+      <div class="ov-row ov-ch">${ch.map(c => `<div class="ovb"><div class="n">${c[0]}</div><div class="st">${c[1]}</div><ul>${c[2].map(t => `<li><span class="tpl">${t[0]}</span>${t[1]}</li>`).join('')}</ul></div>`).join('')}</div>
+      ${arrow(4)}
+      <div class="ov-row ov-proc"><div class="ovb center"><div class="n">Import engine</div><div class="sub">Parse, validate every row, preview, load valid rows</div></div><div class="ovb center"><div class="n">AI extraction</div><div class="sub">A person confirms</div></div></div>
+      ${arrow(2)}
+      <div class="ovb db"><div class="n">Governance database</div><div class="sub">16 tables and an audit trail of every write</div></div>
+      ${arrow(1)}
+      <div class="ovb center"><div class="n">Rules engine</div><div class="sub">Tiering, due dates, revalidation status, KPI and DQ status, governance scores, insights</div></div>
+      ${arrow(3)}
+      <div class="ov-row ov-out"><div class="ovb center"><div class="n">Dashboards</div><div class="sub">Command Center, Operations Board, Model 360, Data Audit</div></div><div class="ovb center"><div class="n">MRC report</div><div class="sub">Governance pack generated from the data</div></div><div class="ovb center"><div class="n">Audit Copilot</div><div class="sub">Plain-language questions, answers cite model IDs</div></div></div>
+    </div>
+    <p class="note" style="margin-top:18px">The walkthrough plays on its own. Use <b>Pause</b>, <b>Back</b> and <b>Next</b> above, or pick any step on the left. All people, models and figures are synthetic.</p>`;
+  await wait(4200);
+}
+
+/* ---------- 1 Policy ---------- */
+async function runPolicy(el) {
+  el.innerHTML = head(STAGES[1], 'Policy loads first because every rule reads its thresholds from it: tier cut-offs, revalidation lead time, SLA days and governance score weights. An Admin can edit any value later and every score recalculates.') +
+    `<div class="stack">${fileCard('f1', 'T12_policy_settings.xlsx', 'T12', `${POLICY.length} rows · sheet "data"`)}
+    <div class="tablewrap scroll"><table><thead><tr><th>Row</th><th>setting_key</th><th>value</th><th>value_type</th><th>Used by</th><th>Check</th></tr></thead><tbody id="tb"></tbody></table></div></div>`;
+  await runFile('f1');
+  await streamRows($('#tb'), POLICY.map((p, i) => `<tr><td class="mono">${i + 2}</td><td class="mono">${p.key}</td><td>${esc(p.value.length > 46 ? p.value.slice(0, 44) + '…' : p.value)}</td><td class="mono">${p.type}</td><td><span class="pill p-acc">${p.rule}</span></td><td>${okPill()}</td></tr>`), 150);
+  fileDone('f1', `${POLICY.length} loaded`); setCount('policy_setting', POLICY.length);
+  await wait(900);
+}
+
+/* ---------- 2 Users ---------- */
+async function runUsers(el) {
+  const roles = ['Admin', 'Model Owner', 'Model Developer', 'Validator', 'MRC Member', 'Auditor', 'Executive'];
+  el.innerHTML = head(STAGES[2], 'Users and their roles decide who can import, edit, upload documents or only read. Segregation of duties is checked against these records: a validator can never be the owner or developer of the same model.') +
+    `<div class="cols"><div class="stack">${fileCard('f2', 'T01_users_roles.xlsx', 'T01', `${USERS.length} rows`)}
+      <div class="tablewrap scroll"><table><thead><tr><th>user_id</th><th>full_name</th><th>role</th><th>business_line</th><th>Check</th></tr></thead><tbody id="tb"></tbody></table></div></div>
+      <div class="panel"><h4>Roles loaded</h4><div class="bars" id="rb">${roles.map(r => `<div class="brow"><span class="nm">${r}</span><span class="tr"><i style="width:0;background:var(--accent)" data-r="${r}"></i></span><span class="vl" data-n="${r}">0</span></div>`).join('')}</div></div></div>`;
+  await runFile('f2');
+  const tally = {}; const max = Math.max(...roles.map(r => USERS.filter(u => u.role === r).length));
+  for (const u of USERS) {
+    $('#tb').insertAdjacentHTML('beforeend', `<tr class="new"><td class="mono">${u.id}</td><td>${esc(u.name)}</td><td>${u.role}</td><td>${esc(u.bizLine)}</td><td>${okPill()}</td></tr>`);
+    const tb = $('#tb'); while (tb.children.length > 12) tb.firstElementChild.remove();
+    tally[u.role] = (tally[u.role] || 0) + 1;
+    const bar = document.querySelector(`[data-r="${u.role}"]`); if (bar) bar.style.width = (100 * tally[u.role] / max) + '%';
+    const nn = document.querySelector(`[data-n="${u.role}"]`); if (nn) nn.textContent = tally[u.role];
+    await wait(70);
+  }
+  fileDone('f2', `${USERS.length} loaded`); setCount('app_user', USERS.length);
+  await wait(900);
+}
+
+/* ---------- 3 Inventory ---------- */
+async function runInventory(el) {
+  const row = (m, i, rej) => `<tr class="${rej ? 'rej' : ''}"><td class="mono">${i}</td><td class="mono">${m.id}</td><td>${esc(m.name)}</td><td>${m.type}</td><td>${m.phase}</td><td class="mono">${m.answers.join(' · ')} = ${m.answers.reduce((a, b) => a + b, 0)}</td><td>${tierPill(m.tier)}</td><td>${rej ? '<span class="pill p-bad">Rejected</span>' : okPill()}</td></tr>`;
+  el.innerHTML = head(STAGES[3], 'The inventory file brings in every model with its owners and four tiering answers. The risk tier is never typed in: the rules engine adds the answers and applies the policy cut-offs (R1). Then a second, five-row file is imported the way a bank would add new models.') +
+    `<div class="stack">${fileCard('f3', 'T02_model_inventory.xlsx', 'T02', `${SEED_MODELS.length} rows · seed inventory`)}
+    <div class="tally" id="tly"><div class="t acc"><b id="c-all">0</b><span>models loaded</span></div><div class="t bad"><b id="c-h">0</b><span>High tier</span></div><div class="t warn"><b id="c-m">0</b><span>Medium tier</span></div><div class="t good"><b id="c-l">0</b><span>Low tier</span></div><div class="t"><b id="c-p">0</b><span>in production</span></div></div>
+    <div class="tablewrap"><table><thead><tr><th>Row</th><th>model_id</th><th>model_name</th><th>model_type</th><th>lifecycle_phase</th><th>Tiering answers</th><th>Tier (R1)</th><th>Check</th></tr></thead><tbody id="tb"></tbody></table></div>
+    <div id="demoArea"></div></div>`;
+  await runFile('f3');
+  const tb = $('#tb'); const t = { all: 0, High: 0, Medium: 0, Low: 0, p: 0 };
+  const bump = m => { t.all++; t[m.tier]++; if (PROD(m)) t.p++; };
+  const paint = () => { $('#c-all').textContent = fmt(t.all); $('#c-h').textContent = t.High; $('#c-m').textContent = t.Medium; $('#c-l').textContent = t.Low; $('#c-p').textContent = t.p; };
+  for (let i = 0; i < 8; i++) { const m = SEED_MODELS[i]; tb.insertAdjacentHTML('beforeend', row(m, i + 2)); tb.lastElementChild.classList.add('new'); bump(m); paint(); await wait(260); }
+  const rest = SEED_MODELS.slice(8);
+  for (let k = 0; k < rest.length; k += 16) { rest.slice(k, k + 16).forEach(bump); paint(); await wait(45); }
+  tb.insertAdjacentHTML('beforeend', `<tr><td colspan="8" style="color:var(--faint)">… ${fmt(rest.length)} more rows validated and loaded</td></tr>`);
+  fileDone('f3', `${SEED_MODELS.length} loaded`); setCount('model', SEED_MODELS.length); setCount('tiering_answer', SEED_MODELS.length);
+  await wait(1100);
+  $('#demoArea').innerHTML = `<div class="stack">${fileCard('f3b', 'T02_new_models_demo.xlsx', 'T02', '5 rows · new models added by the bank')}
+    <div class="tablewrap"><table><thead><tr><th>Row</th><th>model_id</th><th>model_name</th><th>model_type</th><th>lifecycle_phase</th><th>Tiering answers</th><th>Tier (R1)</th><th>Check</th></tr></thead><tbody id="tb2"></tbody></table></div><div id="err"></div></div>`;
+  await runFile('f3b');
+  for (let i = 0; i < DEMO_MODELS.length; i++) { const m = DEMO_MODELS[i]; $('#tb2').insertAdjacentHTML('beforeend', row(m, i + 2, !!m.reject)); $('#tb2').lastElementChild.classList.add('new'); if (!m.reject) { bump(m); paint(); } await wait(520); }
+  const bad = DEMO_MODELS.find(m => m.reject);
+  $('#err').innerHTML = `<div class="errline">Row 5 · ${bad.id} · ${esc(bad.reject)}. ${uname(bad.owner)} is listed as owner and validator. Row skipped; error report ready to download.</div>`;
+  fileDone('f3b', '4 loaded · 1 rejected'); setCount('model', MODELS.length); setCount('tiering_answer', MODELS.length);
+  await wait(2200);
+}
+
+/* ---------- 4 History ---------- */
+async function runHistory(el) {
+  const inProg = VALIDATIONS.filter(v => v.outcome === 'In progress').length;
+  const openSeed = SEED_FINDINGS.filter(f => f.status !== 'Closed');
+  const condLatest = MODELS.filter(m => { const a = latestApproval(m); return a && a.decision === 'Conditional'; }).length;
+  el.innerHTML = head(STAGES[4], 'Past validations, findings and MRC decisions give each model its history. These three files set the open-findings count, the validation dates that drive revalidation, and the conditions the MRC attached to approvals.') +
+    `<div class="cols">
+      <div class="stack">${fileCard('f4a', 'T03_validation_history.xlsx', 'T03', `${fmt(VALIDATIONS.length)} rows`)}<div class="tally"><div class="t acc"><b id="h1">0</b><span>validations</span></div><div class="t warn"><b id="h1b">0</b><span>in progress</span></div></div></div>
+      <div class="stack">${fileCard('f4b', 'T04_findings.xlsx', 'T04', `${fmt(SEED_FINDINGS.length)} rows`)}<div class="tally"><div class="t bad"><b id="h2c">0</b><span>open Critical</span></div><div class="t warn"><b id="h2m">0</b><span>open Medium</span></div><div class="t"><b id="h2l">0</b><span>open Low</span></div></div></div>
+      <div class="stack">${fileCard('f4c', 'T05_approvals.xlsx', 'T05', `${fmt(APPROVALS.length)} rows`)}<div class="tally"><div class="t acc"><b id="h3">0</b><span>MRC decisions</span></div><div class="t warn"><b id="h3b">0</b><span>models on conditions</span></div></div></div>
+    </div>
+    <div class="panel" style="margin-top:16px"><h4>Sample of loaded findings <small>newest first</small></h4><div class="tablewrap"><table><thead><tr><th>finding_id</th><th>model_id</th><th>title</th><th>severity</th><th>category</th><th>status</th><th>due_date</th></tr></thead><tbody id="tb"></tbody></table></div></div>`;
+  await runFile('f4a'); await countUp($('#h1'), VALIDATIONS.length, 700); await countUp($('#h1b'), inProg, 300); fileDone('f4a', `${fmt(VALIDATIONS.length)} loaded`); setCount('validation', VALIDATIONS.length);
+  await runFile('f4b');
+  await Promise.all([countUp($('#h2c'), openSeed.filter(f => f.sev === 'Critical').length, 700), countUp($('#h2m'), openSeed.filter(f => f.sev === 'Medium').length, 700), countUp($('#h2l'), openSeed.filter(f => f.sev === 'Low').length, 700)]);
+  const sample = openSeed.filter(f => MBY[f.model].hero).slice(0, 7);
+  await streamRows($('#tb'), sample.map(f => `<tr><td class="mono">${f.id}</td><td class="mono">${f.model}</td><td>${esc(f.title)}</td><td>${sevPill(f.sev)}</td><td>${f.cat}</td><td>${f.status}</td><td class="mono">${f.due}</td></tr>`), 200);
+  fileDone('f4b', `${fmt(SEED_FINDINGS.length)} loaded`); setCount('finding', SEED_FINDINGS.length);
+  await runFile('f4c'); await countUp($('#h3'), APPROVALS.length, 700); await countUp($('#h3b'), condLatest, 300); fileDone('f4c', `${fmt(APPROVALS.length)} loaded`); setCount('approval', APPROVALS.length);
+  await wait(1500);
+}
+
+/* ---------- 5 Documents ---------- */
+async function runDocs(el) {
+  el.innerHTML = head(STAGES[5], 'Documents take the other path. The text is read, Claude pulls out structured fields, and nothing is saved until a person confirms each item. Here a validator uploads the validation report for new model M-0301, and an owner uploads an incomplete development document for M-0302.') +
+    `<div class="cols">
+      <div class="stack">${fileCard('f5a', 'validation_report_M-0301.pdf', 'T11', 'Validation report · M-0301 SME Probability of Default')}
+        <div class="panel"><h4>Extracted findings <small>waiting for review</small></h4><div id="cands" class="stack" style="gap:8px"><span class="thinking" id="th1" hidden><i></i><i></i><i></i>Reading the findings table</span></div><div id="outc" style="margin-top:10px"></div></div></div>
+      <div class="stack">${fileCard('f5b', 'mdd_M-0302_incomplete.docx', 'T11', 'Model development document · M-0302 CRE Lifetime Loss')}
+        <div class="panel"><h4>Required sections <small>policy mdd_required_sections</small></h4><ul class="checklist" id="chk">${MDD_SECTIONS.map(s => `<li data-s="${esc(s)}"><span class="mk"></span>${esc(s)}</li>`).join('')}</ul><div id="mddres" style="margin-top:10px"></div></div></div>
+    </div>
+    <p class="note" style="margin-top:14px">In this prototype the extraction results are pre-recorded so the walkthrough runs offline. In the build, the same step calls Claude with a JSON schema per document type (design section 8).</p>`;
+  await runFile('f5a', ['Uploading', 'Reading text']);
+  const th = $('#th1'); th.hidden = false; await wait(1600); th.remove();
+  const box = $('#cands');
+  EXTRACTED.forEach((c, i) => box.insertAdjacentHTML('beforeend', `<div class="cand" id="cd${i}"><span class="sev" style="background:var(--${c.sev === 'Critical' ? 'bad' : c.sev === 'Medium' ? 'warn' : 'faint'})"></span><div><div class="ttl">${esc(c.title)}</div><div class="ds">${esc(c.desc)}</div><div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap">${sevPill(c.sev)}<span class="pill p-mute">${c.cat}</span></div></div><div class="acts" data-acts><button class="btn mini" tabindex="-1">Drop</button><button class="btn mini primary" tabindex="-1">Confirm</button></div></div>`));
+  fileDone('f5a', '4 candidates');
+  await wait(1400);
+  for (let i = 0; i < EXTRACTED.length; i++) {
+    const c = EXTRACTED[i], card = document.getElementById('cd' + i);
+    card.querySelector('[data-acts]').innerHTML = c.keep ? '<span class="pill p-good">Confirmed</span>' : '<span class="pill p-mute">Dropped by reviewer</span>';
+    card.classList.add(c.keep ? 'ok' : 'drop');
+    if (c.keep) setCount('finding', SEED_FINDINGS.length + EXTRACTED.slice(0, i + 1).filter(x => x.keep).length);
+    await wait(650);
+  }
+  $('#outc').innerHTML = `<p class="note"><b>3 findings saved</b> to M-0301 with source = extraction, each with an audit event. The Low item was dropped at review, so it never reached the database.</p>`;
+  await runFile('f5b', ['Uploading', 'Reading text']);
+  const missing = DOCS.find(d => d.model === 'M-0302' && d.type === 'MDD').missingSections;
+  for (const li of $('#chk').children) { const miss = missing.includes(li.dataset.s); li.classList.add(miss ? 'miss' : 'ok'); li.querySelector('.mk').textContent = miss ? '✕' : '✓'; await wait(260); }
+  fileDone('f5b', `${MDD_SECTIONS.length - missing.length} of ${MDD_SECTIONS.length} sections`);
+  const sc = SCORES['M-0302'];
+  $('#mddres').innerHTML = `<p class="note"><b>${missing.join(' and ')} missing.</b> Documentation component for M-0302 falls to ${Math.round(sc.comp.doc)} of 100, so its governance score is ${sc.total}.</p>`;
+  setCount('document', DOCS.length);
+  await wait(2000);
+}
+
+/* ---------- 6 CDEs and KPIs ---------- */
+async function runCDE(el) {
+  const sampleC = ['M-0012', 'M-0015', 'M-0042', 'M-0048', 'M-0076', 'M-0078'].flatMap(id => DQ.C.filter(c => c.model === id).slice(0, 2)).slice(0, 10);
+  const sampleK = ['M-0012', 'M-0015', 'M-0042'].flatMap(id => KPI.K.filter(k => k.model === id)).slice(0, 8);
+  el.innerHTML = head(STAGES[6], 'Each model registers its critical data elements, one row per source system, table and column, with the data quality rule that tests it. KPI definitions set the direction and threshold each monitoring result is judged against.') +
+    `<div class="stack">${fileCard('f6a', 'T06_cde_dq_rules.xlsx', 'T06', `${fmt(DQ.C.length)} rows · one rule per data element`)}
+      <div class="tablewrap"><table><thead><tr><th>cde_id</th><th>model_id</th><th>cde_name</th><th>source_system</th><th>source_table</th><th>source_column</th><th>dq_rule</th><th>Check</th></tr></thead><tbody id="tb"></tbody></table></div>
+      ${fileCard('f6b', 'T07_kpi_definitions.xlsx', 'T07', `${fmt(KPI.K.length)} rows`)}
+      <div class="tablewrap"><table><thead><tr><th>kpi_id</th><th>model_id</th><th>kpi_name</th><th>direction</th><th>threshold</th><th>warn_tolerance_pct</th><th>Check</th></tr></thead><tbody id="tb2"></tbody></table></div></div>`;
+  await runFile('f6a');
+  await streamRows($('#tb'), sampleC.map(c => `<tr><td class="mono">${c.id}</td><td class="mono">${c.model}</td><td>${esc(c.name)}</td><td>${esc(c.sys)}</td><td class="mono">${c.tbl}</td><td class="mono">${c.col}</td><td>${esc(DQ.R.find(r => r.cde === c.id).desc)}</td><td>${okPill()}</td></tr>`), 190);
+  $('#tb').insertAdjacentHTML('beforeend', `<tr><td colspan="8" style="color:var(--faint)">… ${fmt(DQ.C.length - sampleC.length)} more rows loaded</td></tr>`);
+  fileDone('f6a', `${fmt(DQ.C.length)} loaded`); setCount('cde', DQ.C.length); setCount('dq_rule', DQ.R.length);
+  await runFile('f6b');
+  await streamRows($('#tb2'), sampleK.map(k => `<tr><td class="mono">${k.id}</td><td class="mono">${k.model}</td><td>${esc(k.name)}</td><td class="mono">${k.dir === 'higher' ? 'higher_is_better' : 'lower_is_better'}</td><td class="mono">${k.thr}</td><td class="mono">${k.tol}</td><td>${okPill()}</td></tr>`), 190);
+  fileDone('f6b', `${fmt(KPI.K.length)} loaded`); setCount('kpi', KPI.K.length);
+  await wait(1500);
+}
+
+/* ---------- 7 Results ---------- */
+async function runResults(el) {
+  const latest = KPI.RES.filter(r => r.period === KPI.periods.at(-1));
+  const kc = { Pass: 0, Warn: 0, Fail: 0 }; latest.forEach(r => kc[r.status]++);
+  const seedRes = DQ.RES.slice(0, DQ.RES.length - DEMO_DQ.length);
+  const seedIss = DQ.ISS.filter(i => i.source === 'seed').length;
+  el.innerHTML = head(STAGES[7], 'Monitoring and data quality results arrive as CSV files. Status is never supplied: each value is judged against its KPI or rule on load (R6, R7), and a failing data quality rule opens an issue automatically.') +
+    `<div class="cols">
+      <div class="stack">${fileCard('f7a', 'T08_kpi_results.csv', 'T08', `${fmt(KPI.RES.length)} rows · 8 quarters`)}
+        <div class="panel"><h4>Latest quarter, judged on load <small>${KPI.periods.at(-1)}</small></h4><div class="tally"><div class="t good"><b id="k1">0</b><span>Pass</span></div><div class="t warn"><b id="k2">0</b><span>Warn</span></div><div class="t bad"><b id="k3">0</b><span>Fail</span></div></div></div>
+        ${fileCard('f7b', 'T09_performance_curves.csv', 'T09', `${fmt(CURVES.length)} points · ROC and predicted vs actual`)}</div>
+      <div class="stack">${fileCard('f7c', 'T10_dq_results.csv', 'T10', `${fmt(seedRes.length)} rows · seed run`)}
+        <div class="tally"><div class="t good"><b id="d1">0</b><span>rules passing</span></div><div class="t bad"><b id="d2">0</b><span>DQ issues opened</span></div></div>
+        ${fileCard('f7d', 'T10_dq_results_demo.csv', 'T10', `${DEMO_DQ.length} rows · today's run`)}
+        <div class="tablewrap"><table><thead><tr><th>dq_rule_id</th><th>model</th><th>source_table.column</th><th>tested</th><th>failed</th><th>pass rate</th><th>Status (R7)</th></tr></thead><tbody id="tb"></tbody></table></div>
+        <div id="dqnew"></div></div>
+    </div>`;
+  await runFile('f7a', ['Uploading', 'Parsing', 'Judging against KPIs (R6)']);
+  await Promise.all([countUp($('#k1'), kc.Pass, 900), countUp($('#k2'), kc.Warn, 900), countUp($('#k3'), kc.Fail, 900)]);
+  fileDone('f7a', `${fmt(KPI.RES.length)} loaded`); setCount('kpi_result', KPI.RES.length);
+  await runFile('f7b', ['Uploading', 'Parsing']); fileDone('f7b', `${fmt(CURVES.length)} loaded`); setCount('performance_point', CURVES.length);
+  await runFile('f7c', ['Uploading', 'Parsing', 'Judging against rules (R7)']);
+  await Promise.all([countUp($('#d1'), seedRes.filter(r => r.status === 'Pass').length, 800), countUp($('#d2'), seedIss, 800)]);
+  fileDone('f7c', `${fmt(seedRes.length)} loaded`); setCount('dq_result', seedRes.length); setCount('dq_issue', seedIss);
+  await runFile('f7d', ['Uploading', 'Judging against rules (R7)']);
+  await streamRows($('#tb'), DEMO_DQ.map(r => { const c = r.cde; const pr = (100 * (1 - r.failed / r.tested)).toFixed(2); return `<tr class="${r.status === 'Fail' ? 'rej' : ''}"><td class="mono">${r.rule}</td><td class="mono">${c.model}</td><td class="mono">${c.tbl}.${c.col}</td><td class="mono">${fmt(r.tested)}</td><td class="mono">${fmt(r.failed)}</td><td class="mono">${pr}%</td><td>${statPill(r.status)}</td></tr>`; }), 380);
+  const nw = DQ.ISS.filter(i => i.source === 'demo');
+  fileDone('f7d', `${DEMO_DQ.length} loaded`); setCount('dq_result', DQ.RES.length); setCount('dq_issue', DQ.ISS.length);
+  $('#dqnew').innerHTML = `<p class="note" style="margin-top:10px"><b>${nw.length} DQ issues opened</b> on ${nw.map(i => { const c = DQ.C.find(x => x.id === i.cde); return `${i.model} (${c.sys}, ${c.tbl}.${c.col})`; }).join(' and ')}.</p>`;
+  await wait(1800);
+}
+
+/* ---------- 8 Rules ---------- */
+async function runRules(el) {
+  const tiers = { High: 0, Medium: 0, Low: 0 }; MODELS.forEach(m => tiers[m.tier]++);
+  const withDue = MODELS.filter(m => dueDate(m)).length;
+  const rs = { Overdue: 0, 'Due soon': 0, Scheduled: 0 }; REVAL.forEach(m => rs[revalStatus(m)]++);
+  const latest = KPI.RES.filter(r => r.period === KPI.periods.at(-1));
+  const R = [
+    ['R1', 'Risk tier', 'Four answers against policy cut-offs', `<b>${tiers.High}</b> High · <b>${tiers.Medium}</b> Medium · <b>${tiers.Low}</b> Low`],
+    ['R2', 'Next revalidation date', 'Last validation + frequency', `<b>${withDue}</b> production models dated`],
+    ['R3', 'Pipeline column', 'Monitoring within 60 days of due moves to Revalidation', `<b>${REVAL.length}</b> models in the Revalidation column`],
+    ['R4', 'Revalidation status', 'Overdue, due within 30 days, scheduled', `<b>${rs.Overdue}</b> overdue · <b>${rs['Due soon']}</b> due soon · <b>${rs.Scheduled}</b> scheduled`],
+    ['R5', 'Segregation of duties', 'Validator is not owner or developer', `<b>1</b> import row rejected · <b>1</b> legacy breach flagged (M-0078)`],
+    ['R6', 'KPI status', 'Value against threshold and tolerance', `<b>${latest.filter(r => r.status === 'Fail').length}</b> KPI failures on <b>${MODELS.filter(kpiBreach).length}</b> models`],
+    ['R7', 'Data quality status', 'Pass rate against rule thresholds', `<b>${DQ.C.filter(c => c.status === 'Fail').length}</b> failing CDEs · <b>${DQ_OPEN.length}</b> open issues`],
+    ['R8', 'Governance score', '5 weighted components per model', `Portfolio average <b>${portfolioScore()}</b> / 100`],
+    ['R9', 'Insights', 'Exceptions ranked by severity', `<b>${insights().length}</b> insights for the Command Center`]
+  ];
+  el.innerHTML = head(STAGES[8], 'With everything loaded, the rules engine derives what no template supplies: tiers, due dates, the Revalidation column, statuses, scores and insights. Each rule is a tested function that reads its thresholds from policy.') +
+    `<div class="rules">${R.map((r, i) => `<div class="rule" id="r${i}"><span class="id">${r[0]}</span><div class="nm">${r[1]}<small>${r[2]}</small><div class="pbar"><i></i></div></div><div class="out" data-out></div></div>`).join('')}</div>
+    <div class="cta"><p>All ${fmt(MODELS.length)} models scored. Generate the dashboards from the database.</p><button class="btn primary" id="gen" disabled>Generate dashboards</button></div>`;
+  for (let i = 0; i < R.length; i++) { const r = document.getElementById('r' + i); r.querySelector('.pbar i').style.width = '100%'; await wait(420); r.classList.add('done'); r.querySelector('[data-out]').innerHTML = R[i][3]; }
+  const g = $('#gen'); g.disabled = false; g.classList.add('go'); g.onclick = () => goTo(9);
+  await wait(1600);
+  if (playing) { g.textContent = 'Generating…'; g.classList.remove('go'); await wait(700); }
+}
+
+/* ---------- Charts ---------- */
+function donut(segs) {
+  const total = segs.reduce((s, x) => s + x.v, 0); let off = 0; const r = 42, C = 2 * Math.PI * r;
+  const arcs = segs.map(s => { const len = C * s.v / total; const a = `<circle cx="59" cy="59" r="${r}" fill="none" style="stroke:${s.c}" stroke-width="18" stroke-dasharray="${len} ${C - len}" stroke-dashoffset="${-off}" transform="rotate(-90 59 59)"/>`; off += len; return a; }).join('');
+  return `<svg class="donut" viewBox="0 0 118 118" role="img" aria-label="${segs.map(s => s.l + ' ' + s.v).join(', ')}">${arcs}<text x="59" y="57" text-anchor="middle" style="fill:var(--text);font:600 18px var(--mono)">${total}</text><text x="59" y="73" text-anchor="middle" style="fill:var(--faint);font:10px var(--body)">models</text></svg>`;
+}
+function legend(segs) { const t = segs.reduce((s, x) => s + x.v, 0); return `<div class="legend">${segs.map(s => `<div class="row"><span class="sw" style="background:${s.c}"></span><span>${s.l}</span><span class="ct">${s.v}</span><span class="pc">${pct(s.v, t)}%</span></div>`).join('')}</div>`; }
+function revalTimeline() {
+  const W = 560, H = 170, x0 = 40, x1 = W - 16, lo = -60, hi = 60; const X = d => x0 + (Math.max(lo, Math.min(hi, d)) - lo) / (hi - lo) * (x1 - x0);
+  const bins = {}; let dots = '';
+  REVAL.forEach(m => { const d = daysToDue(m); const b = Math.round(d / 5) * 5; bins[b] = (bins[b] || 0) + 1; const y = 128 - (bins[b] - 1) * 13; const st = revalStatus(m); const c = st === 'Overdue' ? 'var(--bad)' : st === 'Due soon' ? 'var(--warn)' : 'var(--info)'; dots += `<circle cx="${X(b)}" cy="${y}" r="5.5" style="fill:${c}"><title>${m.id} ${esc(m.name)} · ${d < 0 ? -d + ' days overdue' : 'due in ' + d + ' days'}</title></circle>`; });
+  const ticks = [-60, -30, 0, 30, 60].map(t => `<line class="gridl" x1="${X(t)}" x2="${X(t)}" y1="20" y2="138"/><text class="axt" x="${X(t)}" y="154" text-anchor="middle">${t > 0 ? '+' + t : t}</text>`).join('');
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Days to revalidation for ${REVAL.length} models"><rect x="${x0}" y="20" width="${X(0) - x0}" height="118" style="fill:var(--bad-soft)"/>${ticks}<line class="ax" x1="${x0}" x2="${x1}" y1="138" y2="138"/><text class="axl" x="${x0 + 4}" y="34">Overdue</text><text class="axl" x="${X(30) + 4}" y="34">Lead-time window</text>${dots}<text class="axt" x="${x1}" y="${H - 2}" text-anchor="end">days to due date</text></svg></div>`;
+}
+function rocChart(m) {
+  const pts = CURVES.filter(p => p.model === m.id && p.curve === 'ROC'); if (!pts.length) return '';
+  const W = 300, H = 220, p = 34, X = v => p + v * (W - p - 10), Y = v => H - p - v * (H - p - 10);
+  const path = pts.map((q, i) => `${i ? 'L' : 'M'}${X(q.x).toFixed(1)} ${Y(q.y).toFixed(1)}`).join(' ');
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="ROC curve, AUC ${pts[0].auc}">${[0, .5, 1].map(t => `<line class="gridl" x1="${X(t)}" x2="${X(t)}" y1="${Y(1)}" y2="${Y(0)}"/><line class="gridl" x1="${X(0)}" x2="${X(1)}" y1="${Y(t)}" y2="${Y(t)}"/><text class="axt" x="${X(t)}" y="${H - 18}" text-anchor="middle">${t}</text><text class="axt" x="${p - 6}" y="${Y(t) + 3}" text-anchor="end">${t}</text>`).join('')}<line x1="${X(0)}" y1="${Y(0)}" x2="${X(1)}" y2="${Y(1)}" style="stroke:var(--faint)" stroke-dasharray="4 4"/><path d="${path} L${X(1)} ${Y(0)} L${X(0)} ${Y(0)} Z" style="fill:var(--accent-soft)"/><path d="${path}" fill="none" style="stroke:var(--accent)" stroke-width="2"/><text class="axl" x="${X(.55)}" y="${Y(.3)}">AUC ${pts[0].auc}</text><text class="axt" x="${W / 2}" y="${H - 3}" text-anchor="middle">false positive rate</text></svg></div>`;
+}
+function pvaChart(m) {
+  const pr = CURVES.filter(p => p.model === m.id && p.series === 'predicted'), ac = CURVES.filter(p => p.model === m.id && p.series === 'actual'); if (!pr.length) return '';
+  const all = [...pr, ...ac].map(p => p.y), lo = Math.min(...all) * 0.97, hi = Math.max(...all) * 1.03;
+  const W = 320, H = 200, p = 40, X = i => p + i * (W - p - 12) / (pr.length - 1), Y = v => H - 30 - (v - lo) / (hi - lo) * (H - 50);
+  const line = (arr, c, dash) => `<path d="${arr.map((q, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(q.y).toFixed(1)}`).join(' ')}" fill="none" style="stroke:${c}" stroke-width="2" ${dash ? 'stroke-dasharray="5 4"' : ''}/>`;
+  const f = v => v < 5 ? v.toFixed(2) : Math.round(v);
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Predicted versus actual">${[lo, (lo + hi) / 2, hi].map(v => `<line class="gridl" x1="${p}" x2="${W - 12}" y1="${Y(v)}" y2="${Y(v)}"/><text class="axt" x="${p - 6}" y="${Y(v) + 3}" text-anchor="end">${f(v)}</text>`).join('')}${pr.map((q, i) => i % 2 ? '' : `<text class="axt" x="${X(i)}" y="${H - 12}" text-anchor="middle">${q.x.slice(2)}</text>`).join('')}${line(pr, 'var(--accent)', true)}${line(ac, 'var(--warn)')}<text class="axl" x="${p + 4}" y="14" style="fill:var(--accent)">Predicted</text><text class="axl" x="${p + 76}" y="14" style="fill:var(--warn)">Actual</text></svg></div>`;
+}
+function ring(v) { const r = 26, C = 2 * Math.PI * r; const c = v >= 80 ? 'var(--good)' : v >= 60 ? 'var(--warn)' : 'var(--bad)'; return `<svg viewBox="0 0 64 64" role="img" aria-label="Governance score ${v}"><circle cx="32" cy="32" r="${r}" fill="none" style="stroke:var(--line)" stroke-width="6"/><circle cx="32" cy="32" r="${r}" fill="none" style="stroke:${c}" stroke-width="6" stroke-dasharray="${C * v / 100} ${C}" transform="rotate(-90 32 32)" stroke-linecap="round"/><text x="32" y="37" text-anchor="middle" style="fill:var(--text);font:600 16px var(--mono)">${v}</text></svg>`; }
+const idl = id => `<button class="idlink" data-m="${id}">${id}</button>`;
+
+/* ---------- 9 Dashboard ---------- */
+let dashTab = 'cc', dashModel = null, opsF = { type: 'All', tier: 'All' };
+function tiles() {
+  const inProd = MODELS.filter(PROD).length; const tiers = { High: 0, Medium: 0, Low: 0 }; MODELS.forEach(m => tiers[m.tier]++);
+  const rs = { Overdue: 0, 'Due soon': 0, Scheduled: 0 }; REVAL.forEach(m => rs[revalStatus(m)]++);
+  const T = [
+    ['Total models', MODELS.length, `${inProd} in production (${pct(inProd, MODELS.length)}%)`, 'var(--accent)', 'Every registered model, from initiation to retirement.'],
+    ['High risk', tiers.High, `${pct(tiers.High, MODELS.length)}% of the inventory`, 'var(--bad)', 'Tier from the four tiering answers and policy cut-offs (R1).'],
+    ['Revalidation queue', REVAL.length, `${rs.Overdue} overdue · ${rs['Due soon']} due within 30 days`, 'var(--warn)', 'Production models within 60 days of their revalidation date or past it.'],
+    ['Open findings', OPEN.length, `${OPEN.filter(f => f.sev === 'Critical').length} Critical`, 'var(--warn)', 'Validation and audit findings not yet closed.'],
+    ['Open DQ issues', DQ_OPEN.length, `${DQ_OPEN.filter(i => i.sev === 'Critical').length} on High-tier models`, 'var(--bad)', 'Critical data elements failing their data quality rule.'],
+    ['Governance score', portfolioScore(), 'Portfolio average, out of 100', 'var(--good)', 'Weighted: documents, validation currency, findings, MRC, monitoring (R8).']
+  ];
+  return `<div class="kpis">${T.map(t => `<div class="kpi"><div class="l">${t[0]}</div><div class="v">${fmt(t[1])}</div><div class="s" style="color:${t[3]}">${t[2]}</div><div class="d">${t[4]}</div></div>`).join('')}</div>`;
+}
+function ccView() {
+  const tiers = ['High', 'Medium', 'Low'].map((l, i) => ({ l, v: MODELS.filter(m => m.tier === l).length, c: ['var(--bad)', 'var(--warn)', 'var(--good)'][i] }));
+  const types = TYPES.map((l, i) => ({ l: l === 'CCAR/Stress Testing' ? 'CCAR / stress' : l, v: MODELS.filter(m => m.type === l).length, c: `var(--c${i + 1})` }));
+  const colC = COLUMNS.map(c => MODELS.filter(m => column(m) === c).length); const mx = Math.max(...colC);
+  const ra = MODELS.filter(m => m.phase === 'Reg/Audit').map(m => ({ m, f: openF(m) })).sort((a, b) => b.f.length - a.f.length);
+  const rmx = Math.max(1, ...ra.map(x => x.f.length));
+  const byTbl = {}; DQ.C.forEach(c => { const k = c.sys.replace(/ \(.*\)/, ''); byTbl[k] = byTbl[k] || { Pass: 0, Warn: 0, Fail: 0 }; byTbl[k][c.status]++; });
+  const dqRows = Object.entries(byTbl).sort((a, b) => (b[1].Fail + b[1].Warn) - (a[1].Fail + a[1].Warn)).slice(0, 7);
+  const ins = insights();
+  return tiles() +
+    `<div class="grid3">
+      <div class="panel"><h4>Risk tier distribution</h4><p class="cap">Share of all ${MODELS.length} models</p><div class="donutwrap">${donut(tiers)}${legend(tiers)}</div></div>
+      <div class="panel"><h4>Model type distribution</h4><p class="cap">Share of all ${MODELS.length} models</p><div class="donutwrap">${donut(types)}${legend(types)}</div></div>
+      <div class="panel"><h4>Lifecycle pipeline</h4><p class="cap">Models per Operations Board column; Revalidation derived by R3</p><div class="pipe">${colC.map((v, i) => `<div class="c ${COLUMNS[i] === 'Revalidation' ? 'rv' : ''}"><span class="n">${v}</span><span class="b" style="height:${Math.max(2, 100 * v / mx)}%"></span></div>`).join('')}</div><div class="pipe-l">${['Initiation', 'Develop.', 'Validation', 'Implem.', 'Monitoring', 'Reval.', 'Reg/Audit', 'Retired'].map(c => `<span>${c}</span>`).join('')}</div></div>
+    </div>
+    <div class="grid2">
+      <div class="panel"><h4>Revalidation timeline <small>${REVAL.length} models</small></h4><p class="cap">Each dot is a model placed by days to its due date. Red area is past due.</p>${revalTimeline()}
+        <div class="tablewrap" style="margin-top:8px"><table><thead><tr><th>Overdue</th><th>Model</th><th>Tier</th><th>Frequency</th><th>Days</th></tr></thead><tbody>${REVAL.filter(m => revalStatus(m) === 'Overdue').map(m => `<tr class="click" data-m="${m.id}"><td class="mono">${m.id}</td><td>${esc(m.name)}</td><td>${tierPill(m.tier)}</td><td>${m.freq}</td><td class="mono" style="color:var(--bad)">${daysToDue(m)}</td></tr>`).join('')}</tbody></table></div></div>
+      <div class="stack" style="gap:12px">
+        <div class="panel"><h4>Models in regulatory and audit review <small>open findings by severity</small></h4><div class="bars">${ra.slice(0, 8).map(({ m, f }) => { const c = f.filter(x => x.sev === 'Critical').length, md = f.filter(x => x.sev === 'Medium').length, l = f.length - c - md; return `<div class="brow click" data-m="${m.id}" style="cursor:pointer"><span class="nm"><span class="mono">${m.id}</span> ${esc(m.name)}</span><span class="tr"><i style="width:${100 * c / rmx}%;background:var(--bad)"></i><i style="width:${100 * md / rmx}%;background:var(--warn)"></i><i style="width:${100 * l / rmx}%;background:var(--faint)"></i></span><span class="vl">${f.length}</span></div>`; }).join('')}</div><p class="cap" style="margin:8px 0 0">Red Critical · amber Medium · grey Low</p></div>
+        <div class="panel"><h4>Data quality by source system <small>${DQ.C.length} CDEs</small></h4><div class="bars">${dqRows.map(([k, v]) => { const t = v.Pass + v.Warn + v.Fail; return `<div class="brow"><span class="nm">${esc(k)}</span><span class="tr"><i style="width:${100 * v.Pass / t}%;background:var(--good)"></i><i style="width:${100 * v.Warn / t}%;background:var(--warn)"></i><i style="width:${100 * v.Fail / t}%;background:var(--bad)"></i></span><span class="vl">${v.Fail}</span></div>`; }).join('')}</div><p class="cap" style="margin:8px 0 0">Bar: pass, warn, fail share · number: failing CDEs</p></div>
+      </div>
+    </div>
+    <div class="panel"><h4>Governance insights <small>generated by rule R9 from the loaded data</small></h4><div class="insights">${ins.map(i => `<div class="ins"><span class="sev" style="background:var(--${i.sev})"></span><div>${esc(i.text).replace(/M-\d{4}/g, x => idl(x))}<div class="m">Rule ${i.rule}</div></div></div>`).join('')}</div></div>`;
+}
+function opsView() {
+  const f = MODELS.filter(m => (opsF.type === 'All' || m.type === opsF.type) && (opsF.tier === 'All' || m.tier === opsF.tier));
+  const chip = (k, v, l) => `<button class="chip" data-f="${k}" data-v="${v}" aria-pressed="${opsF[k] === v}">${l || v}</button>`;
+  const lanes = COLUMNS.map(c => { const ms = f.filter(m => column(m) === c).sort((a, b) => (b.hero ? 1 : 0) - (a.hero ? 1 : 0) || (c === 'Revalidation' ? daysToDue(a) - daysToDue(b) : 0)); return `<div class="lane ${c === 'Revalidation' ? 'rv' : ''}"><div class="lh"><span>${c}</span><b>${ms.length}</b></div>${ms.slice(0, 6).map(m => { const d = daysToDue(m); const of = openF(m).length; return `<button class="mcard" data-m="${m.id}" style="border-left-color:var(--${m.tier === 'High' ? 'bad' : m.tier === 'Medium' ? 'warn' : 'good'})"><div class="i">${m.id}</div><div class="nm">${esc(m.name)}</div><div class="bd">${of ? `<span class="pill p-bad">${of} open</span>` : ''}${c === 'Revalidation' ? `<span class="pill ${d < 0 ? 'p-bad' : d <= 30 ? 'p-warn' : 'p-info'}">${d < 0 ? -d + 'd over' : d + 'd'}</span>` : ''}</div></button>`; }).join('')}${ms.length > 6 ? `<div class="more">+${ms.length - 6} more</div>` : ''}</div>`; }).join('');
+  const rows = f.slice().sort((a, b) => (SCORES[a.id]?.total ?? 999) - (SCORES[b.id]?.total ?? 999));
+  return `<div class="filters"><span class="lab">Type</span>${chip('type', 'All')}${TYPES.map(t => chip('type', t, t === 'CCAR/Stress Testing' ? 'CCAR' : t)).join('')}<span class="lab" style="margin-left:8px">Tier</span>${['All', 'High', 'Medium', 'Low'].map(t => chip('tier', t)).join('')}</div>
+    <div class="board">${lanes}</div>
+    <div class="panel"><h4>Inventory <small>${f.length} models · lowest governance score first</small></h4><div class="tablewrap scroll"><table><thead><tr><th>ID</th><th>Model</th><th>Type</th><th>Tier</th><th>Column</th><th>Score</th><th>Open findings</th><th>Due</th><th>Owner</th></tr></thead><tbody>${rows.map(m => { const s = SCORES[m.id]; const d = daysToDue(m); return `<tr class="click" data-m="${m.id}"><td class="mono">${m.id}</td><td>${esc(m.name)}</td><td>${m.sub}</td><td>${tierPill(m.tier)}</td><td>${column(m)}</td><td class="mono" style="color:var(--${!s ? 'faint' : s.total >= 80 ? 'good' : s.total >= 60 ? 'warn' : 'bad'})">${s ? s.total : '—'}</td><td class="mono">${openF(m).length || '—'}</td><td class="mono">${d === null ? '—' : iso(dueDate(m))}</td><td>${esc(uname(m.owner))}</td></tr>`; }).join('')}</tbody></table></div></div>`;
+}
+function daView() {
+  const fails = DQ.C.filter(c => c.status !== 'Pass').sort((a, b) => (a.status === 'Fail' ? 0 : 1) - (b.status === 'Fail' ? 0 : 1));
+  return `<div class="tally" style="margin-bottom:14px"><div class="t acc"><b>${DQ.C.length}</b><span>critical data elements</span></div><div class="t good"><b>${DQ.C.filter(c => c.status === 'Pass').length}</b><span>passing</span></div><div class="t warn"><b>${DQ.C.filter(c => c.status === 'Warn').length}</b><span>warning</span></div><div class="t bad"><b>${DQ.C.filter(c => c.status === 'Fail').length}</b><span>failing</span></div></div>
+    <div class="panel" style="margin-bottom:12px"><h4>CDE registry <small>elements not passing · one source system, table and column per row</small></h4><div class="tablewrap scroll"><table><thead><tr><th>CDE</th><th>Model</th><th>Data element</th><th>Source system</th><th>Table</th><th>Column</th><th>Status</th></tr></thead><tbody>${fails.map(c => `<tr class="click" data-m="${c.model}"><td class="mono">${c.id}</td><td class="mono">${c.model}</td><td>${esc(c.name)}</td><td>${esc(c.sys)}</td><td class="mono">${c.tbl}</td><td class="mono">${c.col}</td><td>${statPill(c.status)}</td></tr>`).join('')}</tbody></table></div></div>
+    <div class="panel"><h4>DQ issue log <small>newest first</small></h4><div class="tablewrap scroll"><table><thead><tr><th>Issue</th><th>Model</th><th>Source</th><th>Issue</th><th>Severity</th><th>Detected</th><th>Business impact</th></tr></thead><tbody>${DQ.ISS.slice().sort((a, b) => b.detected.localeCompare(a.detected) || (a.source === 'demo' ? -1 : 1)).map(i => { const c = DQ.C.find(x => x.id === i.cde); return `<tr class="click" data-m="${i.model}"><td class="mono">${i.id}</td><td class="mono">${i.model}</td><td class="mono">${c.tbl}.${c.col}</td><td>${esc(i.desc)}</td><td>${sevPill(i.sev)}</td><td class="mono">${i.detected}</td><td style="color:var(--muted)">${esc(i.impact)}</td></tr>`; }).join('')}</tbody></table></div></div>`;
+}
+function m360(id) {
+  const m = MBY[id]; if (!m) return '';
+  const s = SCORES[id]; const d = daysToDue(m); const col = column(m);
+  const ci = COLUMNS.indexOf(col);
+  const ks = latestKPIs(m); const fs = FINDINGS.filter(f => f.model === id).sort((a, b) => (a.status === 'Closed') - (b.status === 'Closed') || b.raised.localeCompare(a.raised));
+  const ap = APPROVALS.filter(a => a.model === id).sort((a, b) => b.date.localeCompare(a.date));
+  const cd = DQ.C.filter(c => c.model === id); const docs = DOCS.filter(x => x.model === id);
+  const cmpN = { doc: 'Documentation', val: 'Validation currency', iss: 'Issue remediation', mrc: 'MRC compliance', mon: 'Monitoring' };
+  const cd2 = d === null ? '' : `<span class="pill ${d < 0 ? 'p-bad' : d <= 30 ? 'p-warn' : 'p-info'}">${d < 0 ? -d + ' days overdue' : 'Due in ' + d + ' days'} · ${iso(dueDate(m))}</span>`;
+  const bt = ks.length ? `<div class="bt"><div class="bt-row"><span></span>${KPI.periods.slice(-4).map(p => `<span class="h">${p}</span>`).join('')}</div>${ks.map(k => `<div class="bt-row"><span style="font-size:12px">${esc(k.name)}</span>${k.history.slice(-4).map(r => `<span class="cell p-${r.status === 'Pass' ? 'good' : r.status === 'Warn' ? 'warn' : 'bad'}">${r.value}</span>`).join('')}</div>`).join('')}</div>` : '<p class="cap" style="margin:0">No monitoring results before production.</p>';
+  const chart = rocChart(m) || pvaChart(m);
+  return `<div class="m360" id="m360"><div class="m360-h"><div><div class="badges"><span class="mono" style="font-weight:600">${m.id}</span>${tierPill(m.tier)}<span class="pill p-acc">${m.type}</span><span class="pill p-mute">${col}</span>${m.freq && d !== null ? `<span class="pill p-mute">${m.freq} revalidation</span>` : ''}${cd2}</div><h2>${esc(m.name)}</h2><div class="ds">${esc(m.purpose || `${m.sub} model for ${m.biz}.`)}</div></div>
+    <div class="ring">${s ? ring(s.total) : ''}<div><div style="font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.08em;font-weight:600">Governance score</div><button class="btn" data-close style="margin-top:6px;height:28px">Close</button></div></div></div>
+    <div class="meta"><span>Owner <b>${esc(uname(m.owner))}</b></span><span>Developer <b>${esc(uname(m.dev))}</b></span><span>Validator <b>${m.val ? esc(uname(m.val)) : 'Not assigned'}</b></span><span>Business line <b>${esc(m.biz)}</b></span><span>Version <b>${m.ver}</b></span>${m.lastVal ? `<span>Last validation <b>${m.lastVal}</b></span>` : ''}${m.successor ? `<span>Successor <b>${m.successor}</b></span>` : ''}</div>
+    ${m.legacyConflict ? `<div class="errline" style="margin-bottom:10px">Independence breach (R5): ${esc(uname(m.owner))} is recorded as owner and validator.</div>` : ''}
+    <div class="stepper">${COLUMNS.map((c, i) => `<div class="${i < ci ? 'd' : i === ci ? 'a' : ''}">${c}</div>`).join('')}</div>
+    <div class="grid2">
+      <div class="panel"><h4>Backtesting and KPI history <small>last 4 quarters</small></h4>${bt}</div>
+      <div class="panel"><h4>${chart ? (rocChart(m) ? 'ROC curve' : 'Predicted vs actual') : 'Model performance'}</h4>${chart || '<p class="cap" style="margin:0">Performance curves load once the model is in production.</p>'}</div>
+    </div>
+    <div class="grid2">
+      <div class="panel"><h4>Governance score breakdown</h4>${s ? `<div class="comp bars">${Object.entries(s.comp).map(([k, v]) => `<div class="brow"><span class="nm">${cmpN[k]} <span class="mono" style="color:var(--faint)">${s.weights[k]}%</span></span><span class="tr"><i style="width:${v}%;background:var(--${v >= 80 ? 'good' : v >= 60 ? 'warn' : 'bad'})"></i></span><span class="vl">${Math.round(v)}</span></div>`).join('')}</div><p class="cap" style="margin:8px 0 0">Components not yet applicable are dropped and weights rescaled.</p>` : '<p class="cap">Retired models are not scored.</p>'}</div>
+      <div class="panel"><h4>Findings <small>${fs.filter(f => f.status !== 'Closed').length} open of ${fs.length}</small></h4>${fs.length ? `<div class="tablewrap scroll" style="max-height:220px"><table><tbody>${fs.slice(0, 12).map(f => `<tr><td class="mono">${f.id}</td><td>${esc(f.title)}${f.source === 'extraction' ? ' <span class="pill p-info">extracted</span>' : ''}</td><td>${sevPill(f.sev)}</td><td style="color:${f.status === 'Closed' ? 'var(--good)' : 'var(--muted)'}">${f.status}</td></tr>`).join('')}</tbody></table></div>` : '<p class="cap" style="margin:0">No findings recorded.</p>'}</div>
+    </div>
+    <div class="grid2" style="margin-bottom:0">
+      <div class="panel"><h4>Approvals and MRC decisions</h4>${ap.length ? ap.map(a => `<div style="padding:6px 0;border-bottom:1px solid var(--line);font-size:12.5px"><span class="mono" style="color:var(--faint)">${a.date}</span> · ${a.type} · <span class="pill ${a.decision === 'Approved' ? 'p-good' : 'p-warn'}">${a.decision}</span>${a.conditions ? `<div style="color:var(--muted);margin-top:2px">${esc(a.conditions)}</div>` : ''}</div>`).join('') : '<p class="cap" style="margin:0">No decisions recorded yet.</p>'}</div>
+      <div class="panel"><h4>Critical data elements and documents</h4>${cd.length ? `<div class="tablewrap"><table><tbody>${cd.map(c => `<tr><td>${esc(c.name)}</td><td class="mono" style="font-size:11px">${esc(c.sys.replace(/.*\((.*)\)/, '$1'))}.${c.tbl}.${c.col}</td><td>${statPill(c.status)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="cap">No data elements registered yet.</p>'}<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">${docs.map(x => `<span class="pill ${x.missingSections.length ? 'p-warn' : 'p-mute'}">${x.type}${x.missingSections.length ? ' · ' + x.missingSections.length + ' sections missing' : ''}</span>`).join('') || '<span class="cap">No documents on file</span>'}</div></div>
+    </div></div>`;
+}
+function paintDash() {
+  const body = $('#dashBody'); if (!body) return;
+  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.t === dashTab));
+  body.innerHTML = (dashModel ? m360(dashModel) : '') + (dashTab === 'cc' ? ccView() : dashTab === 'ops' ? opsView() : daView());
+  body.querySelectorAll('[data-m]').forEach(x => x.onclick = () => openModel(x.dataset.m));
+  body.querySelectorAll('[data-close]').forEach(x => x.onclick = () => { dashModel = null; paintDash(); });
+  body.querySelectorAll('.chip').forEach(x => x.onclick = () => { if (playing) setPlaying(false); opsF[x.dataset.f] = x.dataset.v; paintDash(); });
+}
+function showModel(id) { dashModel = id; paintDash(); const b = $('#m360'); if (b) b.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' }); }
+function openModel(id) { if (playing) setPlaying(false); if (cur !== 9) { dashModel = id; dashTab = 'ops'; goTo(9, { instant: true }); return; } dashModel = id; paintDash(); const b = $('#m360'); if (b) b.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' }); }
+async function runDashboard(el) {
+  el.innerHTML = head(STAGES[9], `Three screens generated from the database. Every tile and chart is a count or calculation over the ${fmt(MODELS.length)} loaded models. Select any model for its Model 360 view.`) +
+    `<div id="genWrap"><div class="gen-steps" id="gs">${['Counting inventory by tier, type and column', 'Placing revalidation dates', 'Ranking insights', 'Drawing Command Center'].map(t => `<div>${t}</div>`).join('')}</div></div>
+    <div id="dashWrap" hidden><div class="tabs" role="tablist"><button role="tab" data-t="cc">Command Center</button><button role="tab" data-t="ops">Operations Board</button><button role="tab" data-t="da">Data Audit</button></div><div id="dashBody"></div></div>`;
+  for (const d of $('#gs').children) { await wait(330); d.classList.add('ok'); }
+  await wait(300); $('#genWrap').remove(); $('#dashWrap').hidden = false;
+  document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { if (playing) setPlaying(false); dashTab = b.dataset.t; dashModel = null; paintDash(); });
+  if (!playing || INSTANT) { paintDash(); await wait(200); return; }
+  dashTab = 'cc'; dashModel = null; paintDash(); await wait(7500);
+  dashTab = 'ops'; paintDash(); await wait(5000);
+  showModel('M-0015'); await wait(6500);
+  showModel('M-0012'); await wait(6000);
+  dashModel = null; dashTab = 'da'; paintDash(); window.scrollTo({ top: 0 }); await wait(5000);
+  dashTab = 'cc'; paintDash();
+}
+
+/* ---------- 10 Report ---------- */
+function reportData() {
+  const tiers = { High: 0, Medium: 0, Low: 0 }; MODELS.forEach(m => tiers[m.tier]++);
+  const over = REVAL.filter(m => revalStatus(m) === 'Overdue');
+  const soon = REVAL.filter(m => revalStatus(m) === 'Due soon');
+  const crit = OPEN.filter(f => f.sev === 'Critical').sort((a, b) => a.due.localeCompare(b.due));
+  const ccar = MODELS.filter(m => m.type === 'CCAR/Stress Testing' && m.hero);
+  const dqc = DQ_OPEN.filter(i => i.sev === 'Critical');
+  const cond = MODELS.filter(m => { const a = latestApproval(m); return a && a.decision === 'Conditional'; });
+  return { tiers, over, soon, crit, ccar, dqc, cond, score: portfolioScore(), inProd: MODELS.filter(PROD).length };
+}
+function reportHTML(R, commentary) {
+  const typeRows = TYPES.map(t => { const ms = MODELS.filter(m => m.type === t); return `<tr><td>${t}</td><td class="mono">${ms.length}</td><td class="mono">${ms.filter(m => m.tier === 'High').length}</td><td class="mono">${ms.filter(PROD).length}</td><td class="mono">${ms.reduce((s, m) => s + openF(m).length, 0)}</td></tr>`; }).join('');
+  const decisions = [
+    ...R.over.filter(m => m.tier === 'High').map(m => `Escalate ${m.id} (${m.name}): High tier, ${-daysToDue(m)} days past its revalidation date. Owner ${uname(m.owner)}.`),
+    ...MODELS.filter(m => m.legacyConflict).map(m => `Reassign the validator on ${m.id} (${m.name}); the owner is also recorded as validator.`),
+    `Note ${R.cond.length} models operating under conditional approval; ${R.cond.filter(m => m.hero).map(m => m.id).join(', ')} have Critical findings linked to their conditions.`
+  ];
+  return `<div class="rh"><div><div class="eyebrow">Model Risk Committee</div><h2>Model governance pack</h2></div><div class="ref">As of ${iso(TODAY)}<br>${fmt(MODELS.length)} models · synthetic data<br>Generated from the governance database</div></div>
+    <h3><span class="no">1</span>Summary</h3>
+    <ul class="sum"><li>The inventory holds <b>${fmt(MODELS.length)}</b> models, <b>${R.inProd}</b> in production (${pct(R.inProd, MODELS.length)}%), <b>${R.tiers.High}</b> of them High tier.</li>
+      <li><b>${R.over.length}</b> models are past their revalidation date and <b>${R.soon.length}</b> are due within 30 days.</li>
+      <li><b>${OPEN.length}</b> findings are open, <b>${R.crit.length}</b> Critical; ${R.crit.filter(f => f.due < iso(TODAY)).length} Critical findings are past their remediation date.</li>
+      <li><b>${DQ_OPEN.length}</b> data quality issues are open, ${R.dqc.length} on High-tier models.</li>
+      <li>The portfolio governance score is <b>${R.score}</b> out of 100.</li></ul>
+    ${commentary ? `<h3><span class="no">·</span>Commentary</h3><div class="commentary">${esc(commentary)}</div>` : ''}
+    <h3><span class="no">2</span>Portfolio at a glance</h3>
+    <div class="tablewrap"><table><thead><tr><th>Model type</th><th>Models</th><th>High tier</th><th>In production</th><th>Open findings</th></tr></thead><tbody>${typeRows}</tbody></table></div>
+    <h3><span class="no">3</span>Revalidation past due</h3>
+    <div class="tablewrap"><table><thead><tr><th>Model</th><th>Name</th><th>Tier</th><th>Frequency</th><th>Due date</th><th>Days overdue</th><th>Owner</th></tr></thead><tbody>${R.over.map(m => `<tr><td class="mono">${m.id}</td><td>${esc(m.name)}</td><td>${m.tier}</td><td>${m.freq}</td><td class="mono">${iso(dueDate(m))}</td><td class="mono">${-daysToDue(m)}</td><td>${esc(uname(m.owner))}</td></tr>`).join('')}</tbody></table></div>
+    <h3><span class="no">4</span>Open Critical findings</h3>
+    <div class="tablewrap"><table><thead><tr><th>Finding</th><th>Model</th><th>Title</th><th>Category</th><th>Due</th></tr></thead><tbody>${R.crit.map(f => `<tr><td class="mono">${f.id}</td><td class="mono">${f.model}</td><td>${esc(f.title)}</td><td>${f.cat}</td><td class="mono" style="${f.due < iso(TODAY) ? 'color:var(--bad)' : ''}">${f.due}</td></tr>`).join('')}</tbody></table></div>
+    <h3><span class="no">5</span>Data quality issues on High-tier models</h3>
+    <div class="tablewrap"><table><thead><tr><th>Model</th><th>Source system</th><th>Table</th><th>Column</th><th>Issue</th></tr></thead><tbody>${R.dqc.slice(0, 14).map(i => { const c = DQ.C.find(x => x.id === i.cde); return `<tr><td class="mono">${i.model}</td><td>${esc(c.sys)}</td><td class="mono">${c.tbl}</td><td class="mono">${c.col}</td><td>${esc(i.desc)}</td></tr>`; }).join('')}</tbody></table></div>
+    <h3><span class="no">6</span>Decisions requested of the committee</h3>
+    <ol style="margin:0;padding-left:20px;display:grid;gap:6px;max-width:78ch">${decisions.map(x => `<li>${esc(x)}</li>`).join('')}</ol>`;
+}
+function reportText(R) {
+  return [`Model governance pack — as of ${iso(TODAY)}`, '', `${MODELS.length} models; ${R.inProd} in production; ${R.tiers.High} High tier.`, `${R.over.length} overdue for revalidation; ${R.soon.length} due within 30 days.`, `${OPEN.length} open findings (${R.crit.length} Critical).`, `${DQ_OPEN.length} open data quality issues (${R.dqc.length} on High-tier models).`, `Portfolio governance score ${R.score}/100.`, '', 'Overdue revalidations:', ...R.over.map(m => `- ${m.id} ${m.name} (${m.tier}): ${-daysToDue(m)} days overdue`), '', 'Open Critical findings:', ...R.crit.map(f => `- ${f.id} ${f.model}: ${f.title} (due ${f.due})`)].join('\n');
+}
+let COMMENTARY = '';
+async function runReport(el) {
+  const R = reportData();
+  el.innerHTML = head(STAGES[10], 'The committee pack is written from the same database, so its numbers always match the dashboards. Download it, copy it, or ask Claude to draft the commentary.') +
+    `<div class="gen-steps" id="gs">${['Summarising the portfolio', 'Listing overdue revalidations', 'Collecting Critical findings', 'Adding data quality exceptions', 'Drafting decisions for the committee'].map(t => `<div>${t}</div>`).join('')}</div>
+    <div id="rep" hidden><div class="actions"><button class="btn" id="dl" hidden>Download report (.html)</button><button class="btn" id="cp">Copy summary</button><button class="btn" id="ai" hidden>Draft commentary with Claude</button><span class="status-line" id="rs" aria-live="polite"></span></div><div class="report" id="repDoc"></div></div>`;
+  for (const d of $('#gs').children) { await wait(420); d.classList.add('ok'); }
+  await wait(300); $('#gs').remove(); $('#rep').hidden = false;
+  const paint = () => { $('#repDoc').innerHTML = reportHTML(R, COMMENTARY); };
+  paint();
+  $('#cp').onclick = async () => { try { await navigator.clipboard.writeText(reportText(R)); $('#rs').textContent = 'Summary copied.'; } catch { $('#rs').textContent = 'Copy is blocked here. Select the report text instead.'; } };
+  wireReportCaps(R, paint);
+  await wait(9000);
+}
+async function wireReportCaps(R, paint) {
+  const cl = window.claude;
+  if (!cl || !cl.use) return;
+  const dl = await cl.use('downloads').catch(() => null);
+  if (dl && $('#dl')) {
+    $('#dl').hidden = false;
+    $('#dl').onclick = async () => {
+      const css = 'body{font:14px/1.5 Arial,sans-serif;color:#161A24;max-width:900px;margin:32px auto;padding:0 16px}table{border-collapse:collapse;width:100%;font-size:12.5px;margin:6px 0 14px}th,td{border:1px solid #DDE1EA;padding:6px 8px;text-align:left}th{background:#F3F4F7}h2{font-size:26px;margin:4px 0}h3{font-size:16px;margin:22px 0 8px}.rh{display:flex;justify-content:space-between;border-bottom:2px solid #161A24;padding-bottom:10px}.ref{text-align:right;font-size:12px;color:#555E73}.eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#3B53D4;font-weight:600}.no{color:#3B53D4;margin-right:8px}.commentary{border-left:3px solid #3B53D4;padding:8px 12px;background:#F3F5FD;white-space:pre-wrap}';
+      const html = `<!doctype html><html><head><meta charset="utf-8"><title>Model governance pack ${iso(TODAY)}</title><style>${css}</style></head><body>${reportHTML(R, COMMENTARY).replace(/style="color:var\(--bad\)"/g, 'style="color:#C23C2A"')}</body></html>`;
+      try { await dl.save({ filename: `MRC_governance_pack_${iso(TODAY)}.html`, data: html }); $('#rs').textContent = 'Report saved.'; }
+      catch (e) { $('#rs').textContent = e && e.code === 'declined' ? 'Download cancelled.' : 'Download is not available here.'; }
+    };
+  }
+  const sample = await cl.use('sample').catch(() => null);
+  if (sample && $('#ai')) {
+    $('#ai').hidden = false;
+    $('#ai').onclick = async () => {
+      const b = $('#ai'); b.disabled = true; $('#rs').textContent = 'Claude is drafting…';
+      const facts = reportText(R);
+      try {
+        const { text } = await sample(`You are drafting the commentary paragraph for a bank's Model Risk Committee governance pack. Use only the facts below. Write 90 to 130 words in plain, direct prose for senior executives: the overall position, the two or three exceptions that need the committee's attention (cite model IDs), and one sentence on what to decide. No headings, no bullet points, no figures that are not in the facts.\n\nFACTS\n${facts}`, { onText: ({ text }) => { COMMENTARY = text; paint(); } });
+        COMMENTARY = text; paint(); $('#rs').textContent = 'Commentary added by Claude. Review before sharing.';
+      } catch (e) { $('#rs').textContent = e && e.code === 'not_granted' ? 'Claude was not allowed for this page.' : e && e.code === 'rate_limited' ? 'Claude is busy. Try again in a moment.' : 'Claude could not draft the commentary.'; if (e && ['not_granted', 'sampling_disabled', 'capability_disabled'].includes(e.code)) b.hidden = true; }
+      finally { b.disabled = false; }
+    };
+  }
+}
+
+/* ---------- 11 Copilot ---------- */
+const SUGGEST = ['Which high-risk models are overdue for revalidation?', 'What is blocking CCAR readiness?', 'List open Critical findings by model', 'Which CDEs are failing data quality?', 'Why is M-0078’s score low?'];
+function localAnswer(q) {
+  const s = q.toLowerCase(); const idm = q.match(/M-\d{4}/i); const id = idm ? idm[0].toUpperCase() : null;
+  const list = arr => '<ul>' + arr.map(x => `<li>${x}</li>`).join('') + '</ul>';
+  if (id && MBY[id] && /score|why|low/.test(s)) {
+    const m = MBY[id], sc = SCORES[id]; if (!sc) return { html: `<p>${idl(id)} is retired, so it has no governance score.</p>`, ids: [id] };
+    const n = { doc: 'Documentation', val: 'Validation currency', iss: 'Issue remediation', mrc: 'MRC compliance', mon: 'Monitoring' };
+    const worst = Object.entries(sc.comp).sort((a, b) => a[1] - b[1]);
+    const of = openF(m);
+    return { html: `<p>${idl(id)} ${esc(m.name)} scores <b>${sc.total}</b> out of 100.</p>${list(worst.map(([k, v]) => `${n[k]}: ${Math.round(v)} (weight ${sc.weights[k]}%)`))}<p>${of.length ? `The largest drag is ${of.length} open findings, ${of.filter(f => f.sev === 'Critical').length} Critical.` : 'It has no open findings.'}${m.legacyConflict ? ' Validation currency is also held down by the independence breach: the owner is recorded as validator.' : ''}</p>`, ids: [id] };
+  }
+  if (/overdue|revalidat/.test(s)) {
+    const hi = /high/.test(s); const over = REVAL.filter(m => revalStatus(m) === 'Overdue' && (!hi || m.tier === 'High'));
+    const soon = REVAL.filter(m => revalStatus(m) === 'Due soon' && (!hi || m.tier === 'High'));
+    return { html: `<p><b>${over.length}</b> ${hi ? 'High-tier ' : ''}models are past their revalidation date:</p>${list(over.map(m => `${idl(m.id)} ${esc(m.name)}, ${m.freq.toLowerCase()} cycle, <b>${-daysToDue(m)} days</b> overdue, owner ${esc(uname(m.owner))}`))}<p>${soon.length} more are due within 30 days, starting with ${soon.slice(0, 3).map(m => idl(m.id)).join(', ')}.</p>`, ids: [...over, ...soon.slice(0, 3)].map(m => m.id) };
+  }
+  if (/ccar|stress/.test(s)) {
+    const cc = MODELS.filter(m => m.type === 'CCAR/Stress Testing' && ['Validation', 'Implementation'].includes(m.phase) && m.hero);
+    return { html: `<p>Three CCAR models are not yet in production, and each carries open Critical findings:</p>${list(cc.map(m => { const of = openF(m); const la = latestApproval(m); return `${idl(m.id)} ${esc(m.name)}: ${m.phase}, ${of.filter(f => f.sev === 'Critical').length} Critical and ${of.filter(f => f.sev !== 'Critical').length} other open findings${la && la.decision === 'Conditional' ? `; MRC condition: ${esc(la.conditions)}` : ''}${m.legacyConflict ? '; validator independence breach' : ''}`; }))}<p>The critical path is ${idl('M-0071')}: its go-live is blocked until the NII rate path and trading tail risk findings close.</p>`, ids: cc.map(m => m.id) };
+  }
+  if (/critical|finding/.test(s)) {
+    const cr = OPEN.filter(f => f.sev === 'Critical'); const by = {}; cr.forEach(f => (by[f.model] = by[f.model] || []).push(f));
+    return { html: `<p><b>${cr.length}</b> Critical findings are open across ${Object.keys(by).length} models:</p>${list(Object.entries(by).map(([mid, fs]) => `${idl(mid)} ${esc(MBY[mid].name)}: ${fs.map(f => esc(f.title) + (f.due < iso(TODAY) ? ' <span style="color:var(--bad)">(past due)</span>' : '')).join('; ')}`))}`, ids: Object.keys(by) };
+  }
+  if (/cde|data quality|dq|data element/.test(s)) {
+    const fl = DQ.C.filter(c => c.status === 'Fail'); const top = fl.filter(c => MBY[c.model].tier === 'High').slice(0, 8);
+    return { html: `<p><b>${fl.length}</b> critical data elements are failing their rule, ${fl.filter(c => MBY[c.model].tier === 'High').length} on High-tier models. The first of those:</p>${list(top.map(c => `${idl(c.model)} ${esc(c.name)} — ${esc(c.sys)}, <span class="mono">${c.tbl}.${c.col}</span>`))}`, ids: [...new Set(top.map(c => c.model))] };
+  }
+  if (id && MBY[id]) { const m = MBY[id]; const d = daysToDue(m); return { html: `<p>${idl(id)} ${esc(m.name)} is a ${m.tier}-tier ${esc(m.type)} model in ${column(m)}${d !== null ? `, ${d < 0 ? -d + ' days past' : d + ' days before'} its revalidation date` : ''}. It has ${openF(m).length} open findings and a governance score of ${SCORES[id] ? SCORES[id].total : 'n/a'}.</p>`, ids: [id] }; }
+  if (id && !MBY[id]) return { html: `<p>There is no model ${esc(id)} in the inventory, so I have nothing to report on it.</p>`, ids: [] };
+  if (/retire/.test(s)) { const r = MODELS.filter(m => m.phase === 'Retirement'); return { html: `<p><b>${r.length}</b> models are retired. Those with a named successor:</p>${list(r.filter(m => m.successor).map(m => `${idl(m.id)} ${esc(m.name)} → ${idl(m.successor)}`))}`, ids: r.filter(m => m.successor).map(m => m.id) }; }
+  return { html: `<p>The inventory holds <b>${fmt(MODELS.length)}</b> models: ${MODELS.filter(PROD).length} in production, ${REVAL.length} in the revalidation queue (${REVAL.filter(m => revalStatus(m) === 'Overdue').length} overdue), ${OPEN.length} open findings and ${DQ_OPEN.length} open data quality issues. The portfolio score is ${portfolioScore()}.</p><p>I answer from the loaded records. Try asking about overdue revalidations, CCAR readiness, Critical findings, data quality, or a model ID.</p>`, ids: [] };
+}
+/* Tools Claude may call when answering live; all read-only over the loaded data */
+const slim = m => ({ id: m.id, name: m.name, type: m.type, tier: m.tier, column: column(m), score: SCORES[m.id]?.total ?? null, open_findings: openF(m).length, days_to_revalidation: daysToDue(m), owner: uname(m.owner) });
+const TOOLS = [
+  { name: 'portfolio_summary', description: 'Returns inventory counts by tier, type and pipeline column, the revalidation queue split, open findings by severity, open DQ issues and the portfolio governance score.', execute: () => ({ models: MODELS.length, in_production: MODELS.filter(PROD).length, by_tier: Object.fromEntries(['High', 'Medium', 'Low'].map(t => [t, MODELS.filter(m => m.tier === t).length])), by_type: Object.fromEntries(TYPES.map(t => [t, MODELS.filter(m => m.type === t).length])), by_column: Object.fromEntries(COLUMNS.map(c => [c, MODELS.filter(m => column(m) === c).length])), revalidation: { overdue: REVAL.filter(m => revalStatus(m) === 'Overdue').length, due_soon: REVAL.filter(m => revalStatus(m) === 'Due soon').length, scheduled: REVAL.filter(m => revalStatus(m) === 'Scheduled').length }, open_findings: { total: OPEN.length, critical: OPEN.filter(f => f.sev === 'Critical').length, medium: OPEN.filter(f => f.sev === 'Medium').length, low: OPEN.filter(f => f.sev === 'Low').length }, open_dq_issues: DQ_OPEN.length, portfolio_score: portfolioScore(), as_of: iso(TODAY) }) },
+  { name: 'search_models', description: 'Lists models matching optional filters (type, tier, column, text in the name). Returns up to 25 rows with id, tier, column, score, open findings and days to revalidation.', inputSchema: { type: 'object', properties: { type: { type: 'string', enum: TYPES }, tier: { type: 'string', enum: ['High', 'Medium', 'Low'] }, column: { type: 'string', enum: COLUMNS }, text: { type: 'string' } } }, execute: i => { const t = String(i.text || '').toLowerCase(); const r = MODELS.filter(m => (!i.type || m.type === i.type) && (!i.tier || m.tier === i.tier) && (!i.column || column(m) === i.column) && (!t || m.name.toLowerCase().includes(t))); return { count: r.length, rows: r.slice(0, 25).map(slim) }; } },
+  { name: 'get_model', description: 'Returns one model in full: profile, score components, latest KPI statuses, open findings, latest MRC decision and data element statuses.', inputSchema: { type: 'object', properties: { model_id: { type: 'string' } }, required: ['model_id'] }, execute: i => { const m = MBY[String(i.model_id).toUpperCase()]; if (!m) throw new Error('No model with that ID'); const la = latestApproval(m); return { ...slim(m), phase: m.phase, frequency: m.freq || null, last_validation: m.lastVal || null, validator: m.val ? uname(m.val) : null, independence_breach: !!m.legacyConflict, score: SCORES[m.id], kpis: latestKPIs(m).map(k => ({ name: k.name, value: k.latest.value, threshold: k.thr, status: k.latest.status })), open_findings: openF(m).map(f => ({ id: f.id, title: f.title, severity: f.sev, due: f.due })), latest_decision: la ? { date: la.date, decision: la.decision, conditions: la.conditions } : null, cdes: DQ.C.filter(c => c.model === m.id).map(c => ({ name: c.name, source: `${c.sys} ${c.tbl}.${c.col}`, status: c.status })) }; } },
+  { name: 'revalidation_queue', description: 'Lists models in the Revalidation column with status (Overdue, Due soon, Scheduled), frequency, due date and days to due. Optional filter by status or tier.', inputSchema: { type: 'object', properties: { status: { type: 'string', enum: ['Overdue', 'Due soon', 'Scheduled'] }, tier: { type: 'string', enum: ['High', 'Medium', 'Low'] } } }, execute: i => REVAL.filter(m => (!i.status || revalStatus(m) === i.status) && (!i.tier || m.tier === i.tier)).map(m => ({ ...slim(m), status: revalStatus(m), frequency: m.freq, due_date: iso(dueDate(m)) })) },
+  { name: 'list_findings', description: 'Lists open findings, optionally for one model or one severity. Returns id, model, title, severity, category and due date.', inputSchema: { type: 'object', properties: { model_id: { type: 'string' }, severity: { type: 'string', enum: ['Critical', 'Medium', 'Low'] } } }, execute: i => OPEN.filter(f => (!i.model_id || f.model === String(i.model_id).toUpperCase()) && (!i.severity || f.sev === i.severity)).slice(0, 40).map(f => ({ id: f.id, model: f.model, title: f.title, severity: f.sev, category: f.cat, due: f.due, past_due: f.due < iso(TODAY) })) },
+  { name: 'list_dq_issues', description: 'Lists open data quality issues with the model, source system, table and column, description and severity. Optional filter by model or severity.', inputSchema: { type: 'object', properties: { model_id: { type: 'string' }, severity: { type: 'string', enum: ['Critical', 'Medium'] } } }, execute: i => DQ_OPEN.filter(x => (!i.model_id || x.model === String(i.model_id).toUpperCase()) && (!i.severity || x.sev === i.severity)).slice(0, 30).map(x => { const c = DQ.C.find(y => y.id === x.cde); return { id: x.id, model: x.model, source_system: c.sys, table: c.tbl, column: c.col, issue: x.desc, severity: x.sev }; }) }
+];
+const RULES_PROMPT = `You are the Audit Copilot for a bank's model risk management inventory. Answer the user's question using only the data returned by your tools (or the DATA block if one is given). Cite every model you mention by its ID, for example M-0042. Give counts exactly as the data shows them. If the data does not answer the question, say so plainly and do not invent figures. You cannot change records; if asked to, say you can only read them. Keep answers under 180 words unless the user asks for a full list. Use short paragraphs or a short bulleted list; no headings.`;
+function mdLite(t) {
+  const lines = esc(t).split('\n'); let html = '', inList = false;
+  lines.forEach(l => { const b = l.match(/^\s*[-*•]\s+(.*)/); if (b) { if (!inList) { html += '<ul>'; inList = true; } html += `<li>${b[1]}</li>`; } else { if (inList) { html += '</ul>'; inList = false; } if (l.trim()) html += `<p>${l}</p>`; } });
+  if (inList) html += '</ul>';
+  return html.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\bM-\d{4}\b/g, x => MBY[x] ? idl(x) : x);
+}
+let SAMPLE = null, useClaude = false, turns = [], busy = false, ctl = null;
+async function runCopilot(el) {
+  el.innerHTML = head(STAGES[11], 'Plain-language questions, answered from the governance database. The walkthrough asks two questions with built-in answers computed from the loaded records. Then ask your own; switch on Claude for open-ended questions, where Claude reads the data through read-only tools.') +
+    `<div class="chat"><div class="msgs" id="msgs" aria-live="polite"><div class="msg a"><div class="body"><p>I read the ${fmt(MODELS.length)}-model inventory: findings, approvals, revalidation dates, KPIs and data quality. Every answer cites the model IDs it used.</p></div></div></div>
+      <div class="composer"><div class="sugs" id="sugs">${SUGGEST.map(s => `<button>${esc(s)}</button>`).join('')}</div>
+        <form class="inrow" id="cf"><input id="ci" type="text" autocomplete="off" placeholder="Ask about models, findings, revalidation or data quality" aria-label="Question for the Audit Copilot"><button class="btn primary" id="cs" type="submit">Ask</button><button class="btn" id="cstop" type="button" hidden>Stop</button></form>
+        <div class="mode" id="mode"><span>Answering from built-in queries over the loaded records.</span></div></div></div>
+    <div id="endcard"></div>`;
+  $('#sugs').querySelectorAll('button').forEach(b => b.onclick = () => { if (playing) setPlaying(false); ask(b.textContent); });
+  $('#cf').onsubmit = e => { e.preventDefault(); const v = $('#ci').value.trim(); if (v) { $('#ci').value = ''; ask(v); } };
+  $('#cstop').onclick = () => ctl && ctl.abort();
+  setupClaude();
+  if (!playing || INSTANT) return;
+  for (const q of SUGGEST.slice(0, 2)) {
+    const inp = $('#ci'); inp.value = '';
+    for (const ch of q) { inp.value += ch; await wait(28); }
+    await wait(300); inp.value = ''; await ask(q, true); await wait(4200);
+  }
+  $('#endcard').innerHTML = `<div class="done-card"><b>Walkthrough complete.</b> Every step is still live: pick any step on the left, open a model from the dashboards, or ask the Copilot your own question.</div>`;
+}
+async function setupClaude() {
+  const cl = window.claude; if (!cl || !cl.use) return;
+  SAMPLE = await cl.use('sample').catch(() => null);
+  if (!SAMPLE || !$('#mode')) return;
+  useClaude = true;
+  $('#mode').innerHTML = `<button class="switch" id="sw" role="switch" aria-checked="true" aria-label="Answer with Claude"></button><span id="swl">Your own questions go to Claude, which reads the data through read-only tools. This uses your Claude usage. Suggested questions use built-in answers.</span>`;
+  $('#sw').onclick = () => { useClaude = !useClaude; $('#sw').setAttribute('aria-checked', useClaude); $('#swl').textContent = useClaude ? 'Your own questions go to Claude, which reads the data through read-only tools. This uses your Claude usage. Suggested questions use built-in answers.' : 'Answering from built-in queries over the loaded records.'; };
+}
+function addMsg(role, html, src) {
+  const box = $('#msgs'); if (!box) return null;
+  const d = document.createElement('div'); d.className = 'msg ' + role;
+  d.innerHTML = role === 'u' ? esc(html) : `<div class="body">${html}</div>${src ? `<div class="src">${src}</div>` : ''}`;
+  box.appendChild(d); box.scrollTop = box.scrollHeight;
+  d.querySelectorAll('[data-m]').forEach(x => x.onclick = () => openModel(x.dataset.m));
+  return d;
+}
+function wireIds(d) { d.querySelectorAll('[data-m]').forEach(x => x.onclick = () => openModel(x.dataset.m)); }
+async function ask(q, scripted) {
+  if (busy) return; busy = true;
+  addMsg('u', q);
+  const isSuggested = SUGGEST.includes(q);
+  if (!useClaude || !SAMPLE || isSuggested || scripted) {
+    const pend = addMsg('a', '<span class="thinking"><i></i><i></i><i></i>Querying the database</span>');
+    await wait(scripted ? 900 : 350).catch(() => {});
+    if (!pend || !pend.isConnected) { busy = false; return; }
+    const a = localAnswer(q);
+    if (pend) { pend.querySelector('.body').innerHTML = a.html; pend.insertAdjacentHTML('beforeend', `<div class="src">Built-in query over loaded records${a.ids.length ? ' · cites ' + a.ids.length + ' model' + (a.ids.length > 1 ? 's' : '') : ''}</div>`); wireIds(pend); $('#msgs').scrollTop = 1e9; }
+    busy = false; return;
+  }
+  const pend = addMsg('a', '<span class="thinking"><i></i><i></i><i></i>Claude is reading the data</span>');
+  ctl = new AbortController(); $('#cstop').hidden = false; $('#cs').disabled = true;
+  turns.push({ role: 'user', content: q });
+  let used = [];
+  try {
+    const lim = await SAMPLE.limits().catch(() => null);
+    const tools = lim && lim.tools ? TOOLS.map(t => ({ ...t, execute: (inp) => { used.push(t.name); const b = pend.querySelector('.thinking'); if (b) b.lastChild.textContent = 'Claude is calling ' + t.name.replace(/_/g, ' '); return t.execute(inp || {}); } })) : null;
+    const data = tools ? '' : `\n\nDATA\n${JSON.stringify({ summary: TOOLS[0].execute(), revalidation: TOOLS[3].execute({}), critical_findings: TOOLS[4].execute({ severity: 'Critical' }), dq_critical: TOOLS[5].execute({ severity: 'Critical' }) }).slice(0, 60000)}`;
+    const input = [{ role: 'user', content: RULES_PROMPT + data }, { role: 'assistant', content: 'Understood. I will answer only from the inventory data and cite model IDs.' }, ...turns.slice(-8)];
+    const opts = { cache: false, signal: ctl.signal, onText: ({ text }) => { pend.querySelector('.body').innerHTML = mdLite(text); wireIds(pend); $('#msgs').scrollTop = 1e9; } };
+    if (tools) opts.tools = tools;
+    const { text } = await SAMPLE(input, opts);
+    pend.querySelector('.body').innerHTML = mdLite(text); wireIds(pend);
+    pend.insertAdjacentHTML('beforeend', `<div class="src">Answered by Claude${used.length ? ' · tools: ' + [...new Set(used)].join(', ') : ' · from the data summary'}</div>`);
+    turns.push({ role: 'assistant', content: text });
+  } catch (e) {
+    turns.pop();
+    const code = e && e.code;
+    if (code === 'cancelled') { pend.querySelector('.body').innerHTML = e.text ? mdLite(e.text) : '<p>Stopped.</p>'; }
+    else if (['not_granted', 'sampling_disabled', 'capability_disabled', 'not_declared', 'capability_removed'].includes(code)) { useClaude = false; SAMPLE = null; const a = localAnswer(q); pend.querySelector('.body').innerHTML = a.html; pend.insertAdjacentHTML('beforeend', '<div class="src">Claude is not available here, so this is a built-in answer</div>'); $('#mode').innerHTML = '<span>Answering from built-in queries over the loaded records.</span>'; }
+    else { const a = localAnswer(q); pend.querySelector('.body').innerHTML = (e && e.text ? mdLite(e.text) + '<hr style="border:0;border-top:1px solid var(--line)">' : '') + a.html; pend.insertAdjacentHTML('beforeend', `<div class="src">${code === 'rate_limited' ? 'Claude is busy right now' : 'Claude could not answer'}; showing the built-in answer</div>`); }
+    wireIds(pend);
+  } finally { busy = false; ctl = null; if ($('#cstop')) { $('#cstop').hidden = true; $('#cs').disabled = false; } }
+}
+
+/* ---------- Boot ---------- */
+renderLedger();
+setPlaying(!REDUCED);
+goTo(0);
+
+</script>
+
+</body>
+</html>
